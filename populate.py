@@ -14,7 +14,9 @@ def create_features(name, data):
         if not path.exists():
             path.parent.mkdir(parents=True, exist_ok=True)
             with path.open('w') as f:
+                print('---', file=f)
                 yaml.dump(dict(id=name, support='unknown'), f)
+                print('---', file=f)
                 print(path.relative_to(features_path.parent), file=sys.stderr)
 
     for k, v in data.items():
