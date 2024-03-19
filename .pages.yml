@@ -60,37 +60,24 @@ content:
 
       - name: tests
         label: Tests
-        description: "What tests does Surfly have for this feature?"
+        description: |
+          Paths of test files relative to the cobro repository root
         type: string
         list: true
-        pattern:
-          regex: "^([a-zA-Z0-9-_]+/)+[a-zA-Z0-9-_]+\\.[a-zA-Z0-9]+$"
-          message: |
-            Not a valid path to a test file in the cobro repository
 
       - name: tickets
         label: Tickets
         description: Links to issues and pull requests
         type: string
         list: true
-        pattern:
-          regex: "https://github.com/surfly/(it/issues|[^/]+/pull)/[1-9][0-9]*"
-          message: |
-            Not a valid link to an issue in the it repository or a pull request in another surfly repository
 
       - name: version_added
-        label: Version added
+        label: Version added (without the leading v)
         type: string
-        pattern:
-          regex: "[1-9]\\.[1-9][0-9]*"
-          message: "Not a valid Surfly version number"
 
       - name: version_removed
-        label: Version removed
+        label: Version removed (without the leading v)
         type: string
-        pattern:
-          regex: "[1-9]\\.[1-9][0-9]*"
-          message: "Not a valid Surfly version number"
 
       - name: body
         label: Notes
