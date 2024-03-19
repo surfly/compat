@@ -6,7 +6,7 @@ content:
     type: collection
     path: features
     extension: yaml
-    filename: "{feature}.yaml"
+    filename: "{fields.feature}.yaml"
     format: yaml-frontmatter
 
     view:
