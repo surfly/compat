@@ -39,6 +39,9 @@ content:
         required: true
         options:
           values:
+            - value: unknown
+              label: |
+                Unknown
             - value: tested
               label: |
                 Yes (tested, no known issues)
