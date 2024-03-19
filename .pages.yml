@@ -5,8 +5,8 @@ content:
     label: Features
     type: collection
     path: features
-    extension: yaml
-    filename: "{fields.id}.yaml"
+    extension: txt
+    filename: "{fields.id}.txt"
     format: yaml-frontmatter
 
     view:
