@@ -1,1 +1,93 @@
 
+content:
+
+  - name: features
+    label: Features
+    type: collection
+    path: features
+    extension: yaml
+    filename: "{feature}.yaml"
+    format: yaml-frontmatter
+
+    view:
+
+      fields:
+        - id
+        - support
+      primary: id
+      sort:
+        - id
+        - support
+      default:
+        sort: id
+        order: asc
+
+    fields:
+
+      - name: id
+        label: Identifier
+        description: |
+          Name of the feature according to MDN's browser-compat-data
+        type: string
+        required: true
+
+      - name: support
+        label: Support
+        description: |
+          What kind of support does Surfly have for this feature?
+        type: select
+        options:
+          values:
+            - value: tested
+              label: |
+                Yes (tested, no known issues)
+            - value: partial
+              label: |
+                Partial implementation (tested, has bugs or caveats)
+            - value: expected
+              label: |
+                Expected to work (not tested)
+            - value: todo
+              label: |
+                No, not yet implemented
+            - value: never
+              label: |
+                No, cannot implement due to a technical limitation
+
+      - name: tests
+        label: Tests
+        description: "What tests does Surfly have for this feature?"
+        type: string
+        list: true
+        pattern:
+          regex: "^([a-zA-Z0-9-_]+/)+[a-zA-Z0-9-_]+\\.[a-zA-Z0-9]+$"
+          message: |
+            Not a valid path to a test file in the cobro repository
+
+      - name: tickets
+        label: Tickets
+        description: Links to issues and pull requests
+        type: string
+        list: true
+        pattern:
+          regex: "https://github.com/surfly/(it/issues|[^/]+/pull)/[1-9][0-9]*"
+          message: |
+            Not a valid link to an issue in the it repository or a pull request in another surfly repository
+
+      - name: version_added
+        label: Version added
+        type: text
+        pattern:
+          regex: "[1-9]\\.[1-9][0-9]*"
+          message: "Not a valid Surfly version number"
+
+      - name: version_removed
+        label: Version removed
+        type: text
+        pattern:
+          regex: "[1-9]\\.[1-9][0-9]*"
+          message: "Not a valid Surfly version number"
+
+      - name: body
+        label: Notes
+        type: text
