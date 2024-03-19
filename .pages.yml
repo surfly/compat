@@ -5,8 +5,8 @@ content:
     label: Features
     type: collection
     path: features
-    extension: txt
-    filename: "{fields.id}.txt"
+    extension: html
+    filename: "{fields.id}.html"
     format: yaml-frontmatter
 
     view:
@@ -81,4 +81,7 @@ content:
 
       - name: body
         label: Notes
-        type: text
+        type: code
+        list: true
+        options:
+          language: html

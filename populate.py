@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import pathlib
 import sys
 
@@ -10,7 +12,7 @@ features_path = script_path / 'features'
 
 def create_features(name, data):
     if '__compat' in data:
-        path = (features_path / data['__compat']['source_file']).with_suffix('.txt')
+        path = (features_path / data['__compat']['source_file']).with_suffix('.html')
         if not path.exists():
             path.parent.mkdir(parents=True, exist_ok=True)
             with path.open('w') as f:
