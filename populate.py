@@ -24,7 +24,10 @@ def create_dir(name, data):
     '''search for a feature'''
 
     if '__compat' in data:
-        name_path = name.replace('.', '/')
+        path_parts = name.split('.')
+        if len(data) == 1:
+            path_parts.pop()
+        name_path = '/'.join(path_parts)
         dir_path = features_path / name_path
         dir_path.mkdir(parents=True, exist_ok=True)
         create_features(dir_path, name, data)
