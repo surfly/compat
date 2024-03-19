@@ -9,6 +9,7 @@ import yaml
 script_path = pathlib.Path(__file__).resolve().parent
 features_path = script_path / 'features'
 
+
 def create_features_dir(root, name):
     name_parts = name.split('.')
 
@@ -16,16 +17,14 @@ def create_features_dir(root, name):
     for k in name_parts:
         data = data[k]
 
-    parent_path = features_path / '/'.join(name_parts)
-    parent_path.mkdir(parents=True, exist_ok=True)
-
-    create_features(parent_path, name, data)
+    create_features(name, data)
 
 
-def create_features(parent_path, name, data):
+def create_features(name, data):
     if '__compat' in data:
-        path = parent_path / f'{name}.html'
+        path = features_path / f'{name.replace(".", "/")}.html'
         if not path.exists():
+            path.parent.mkdir(parents=True, exist_ok=True)
             with path.open('w') as f:
                 print('---', file=f)
                 yaml.dump(dict(id=name, support='unknown'), f)
@@ -34,7 +33,7 @@ def create_features(parent_path, name, data):
 
     for k, v in data.items():
         if k != '__compat':
-            create_features(parent_path, f'{name}.{k}', v)
+            create_features(f'{name}.{k}', v)
 
 
 root = requests.get('https://unpkg.com/@mdn/browser-compat-data@5.5.16/data.json').json()
