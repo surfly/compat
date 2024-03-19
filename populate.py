@@ -10,27 +10,35 @@ script_path = pathlib.Path(__file__).resolve().parent
 features_path = script_path / 'features'
 
 
-def create_features_dir(root, name):
+def create_top_dir(root, name):
     name_parts = name.split('.')
 
     data = root
     for k in name_parts:
         data = data[k]
 
-    create_features(name, data)
+    create_dir(name, data)
 
 
-def create_features(name, data):
+def create_dir(name, data):
+    '''search for a feature'''
+
     if '__compat' in data:
-
         name_path = name.replace('.', '/')
-        if len(data) > 1:
-            path = features_path / name_path / f'{name}.html'
-        else:
-            path = features_path / f'{name_path}.html'
+        dir_path = features_path / name_path
+        dir_path.mkdir(parents=True, exist_ok=True)
+        create_features(dir_path, name, data)
+    else:
+        for k, v in data.items():
+            create_dir(f'{name}.{k}', v)
 
+
+def create_features(dir_path, name, data):
+    '''create empty (sub-)features'''
+
+    if '__compat' in data:
+        path = dir_path / f'{name}.html'
         if not path.exists():
-            path.parent.mkdir(parents=True, exist_ok=True)
             with path.open('w') as f:
                 print('---', file=f)
                 yaml.dump(dict(id=name, support='unknown'), f)
@@ -39,13 +47,13 @@ def create_features(name, data):
 
     for k, v in data.items():
         if k != '__compat':
-            create_features(f'{name}.{k}', v)
+            create_features(dir_path, f'{name}.{k}', v)
 
 
 root = requests.get('https://unpkg.com/@mdn/browser-compat-data@5.5.16/data.json').json()
-create_features_dir(root, 'api')
-create_features_dir(root, 'html.elements')
-create_features_dir(root, 'html.global_attributes')
-create_features_dir(root, 'http.data-url')
-create_features_dir(root, 'http.headers')
-create_features_dir(root, 'javascript')
+create_top_dir(root, 'api')
+create_top_dir(root, 'html.elements')
+create_top_dir(root, 'html.global_attributes')
+create_top_dir(root, 'http.data-url')
+create_top_dir(root, 'http.headers')
+create_top_dir(root, 'javascript')
