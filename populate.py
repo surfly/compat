@@ -22,7 +22,13 @@ def create_features_dir(root, name):
 
 def create_features(name, data):
     if '__compat' in data:
-        path = features_path / f'{name.replace(".", "/")}.html'
+
+        name_path = name.replace('.', '/')
+        if len(data) > 1:
+            path = features_path / name_path / f'{name}.html'
+        else:
+            path = features_path / f'{name_path}.html'
+
         if not path.exists():
             path.parent.mkdir(parents=True, exist_ok=True)
             with path.open('w') as f:
