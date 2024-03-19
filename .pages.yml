@@ -80,14 +80,14 @@ content:
 
       - name: version_added
         label: Version added
-        type: text
+        type: string
         pattern:
           regex: "[1-9]\\.[1-9][0-9]*"
           message: "Not a valid Surfly version number"
 
       - name: version_removed
         label: Version removed
-        type: text
+        type: string
         pattern:
           regex: "[1-9]\\.[1-9][0-9]*"
           message: "Not a valid Surfly version number"
