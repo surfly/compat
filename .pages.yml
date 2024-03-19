@@ -36,6 +36,7 @@ content:
         description: |
           What kind of support does Surfly have for this feature?
         type: select
+        required: true
         options:
           values:
             - value: tested
