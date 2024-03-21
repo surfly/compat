@@ -90,19 +90,20 @@ def gen_overlay(*, mdn, support_tree):
             except KeyError:
                 continue
 
-            # make sparse
+            # sparse: if all rows are unknown, just say the whole table is unknown
             if all(support_row == Support.UNKNOWN for support_row in support_table):
                 support_table = Support.UNKNOWN
 
             support_tables.append(support_table)
 
-        # make sparse
+        # make sparse: if we don't support anything on this page, skip the page
         if all(support_table == Support.UNKNOWN for support_table in support_tables):
             continue
 
         yield (path, support_tables)
 
 
+# FIXME: generate support tree from browser-compat-data directly (depth-first, preserving order), then add surfly data
 mdn = parse_mdn()
 support_tree = parse_support()
 overlay = dict(gen_overlay(mdn=mdn, support_tree=support_tree))
