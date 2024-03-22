@@ -1,56 +1,18 @@
 #!/usr/bin/env python3
-"""
-Determine which MDN pages should be altered to include data on Surfly support.
-"""
+"""Determine which MDN pages should be altered to include data on Surfly support."""
 
-import enum
 import json
 import pathlib
 import sys
 
 import frontmatter
 
+from .featuretree import FeatureTree
+from .support import Support
+
 root_path = pathlib.Path(__file__).parent.parent
 mdn_path = root_path / "mdn/files/en-us/web"
 surfly_path = root_path / "features"
-
-
-class Support(enum.IntEnum):
-    UNKNOWN = 0
-    TESTED = 1
-    EXPECTED = 2
-    PARTIAL = 3
-    TODO = 4
-    NEVER = 5
-
-
-class Tree:
-    def __init__(self, v=None):
-        self.children = dict()
-        self.value = v
-
-    def __setitem__(self, path, v):
-        k, _, path = path.partition(".")
-        if not path:
-            self.children[k] = Tree(v)
-            return
-
-        if k not in self.children:
-            self.children[k] = Tree()
-        self.children[k][path] = v
-
-    def __getitem__(self, path):
-        k, _, path = path.partition(".")
-        if not path:
-            return self.children[k]
-
-        return self.children[k][path]
-
-    def __iter__(self):
-        if self.value is not None:
-            yield self.value
-        for child in self.children.values():
-            yield from child
 
 
 def parse_mdn():
@@ -72,7 +34,7 @@ def parse_mdn():
 
 
 def parse_support():
-    support_tree = Tree()
+    support_tree = FeatureTree()
     for path in surfly_path.glob("**/*.html"):
         fm = frontmatter.load(path)
         support_tree[fm["id"]] = Support[fm["support"].upper()]
