@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-'''
+"""
 Determine which MDN pages should be altered to include data on Surfly support.
-'''
+"""
 
 import enum
 import json
@@ -10,9 +10,9 @@ import sys
 
 import frontmatter
 
-cwd = pathlib.Path(__file__).parent
-mdn_path = cwd / 'content/files/en-us/web'
-surfly_path = cwd / 'pages-cms-test/features'
+root_path = pathlib.Path(__file__).parent.parent
+mdn_path = root_path / "mdn/files/en-us/web"
+surfly_path = root_path / "features"
 
 
 class Support(enum.IntEnum):
@@ -30,7 +30,7 @@ class Tree:
         self.value = v
 
     def __setitem__(self, path, v):
-        k, _, path = path.partition('.')
+        k, _, path = path.partition(".")
         if not path:
             self.children[k] = Tree(v)
             return
@@ -40,7 +40,7 @@ class Tree:
         self.children[k][path] = v
 
     def __getitem__(self, path):
-        k, _, path = path.partition('.')
+        k, _, path = path.partition(".")
         if not path:
             return self.children[k]
 
@@ -58,7 +58,7 @@ def parse_mdn():
         fm = frontmatter.load(path)
 
         try:
-            features = fm['browser-compat']
+            features = fm["browser-compat"]
 
         # skip pages without a compatibility table
         except KeyError:
@@ -67,7 +67,7 @@ def parse_mdn():
         if not isinstance(features, list):
             features = [features]
 
-        path = fm['slug']
+        path = fm["slug"]
         yield (path, features)
 
 
@@ -75,7 +75,7 @@ def parse_support():
     support_tree = Tree()
     for path in surfly_path.glob("**/*.html"):
         fm = frontmatter.load(path)
-        support_tree[fm['id']] = Support[fm['support'].upper()]
+        support_tree[fm["id"]] = Support[fm["support"].upper()]
     return support_tree
 
 
@@ -107,4 +107,4 @@ def gen_overlay(*, mdn, support_tree):
 mdn = parse_mdn()
 support_tree = parse_support()
 overlay = dict(gen_overlay(mdn=mdn, support_tree=support_tree))
-json.dump(overlay, sys.stdout, separators=',:')
+json.dump(overlay, sys.stdout, separators=",:")
