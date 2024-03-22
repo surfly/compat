@@ -82,6 +82,5 @@ content:
       - name: body
         label: Notes
         type: code
-        list: true
         options:
           language: html
