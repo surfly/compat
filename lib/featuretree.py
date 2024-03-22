@@ -29,12 +29,18 @@ class FeatureTree:
         k, _, subfeature_id = feature_id.partition(".")
         return self.children[k][subfeature_id]
 
-    def descendent_keys(self, prefix=""):
+    def get(self, feature_id, default=None):
+        try:
+            return self[feature_id]
+        except KeyError:
+            return default
+
+    def descendent_items(self, prefix=""):
         for k, v in self.children.items():
-            ident = f"{prefix}{k}"
+            feature_id = f"{prefix}{k}"
             if v.value is not None:
-                yield ident
-            yield from v.descendent_keys(f"{ident}.")
+                yield (feature_id, v.value)
+            yield from v.descendent_items(f"{feature_id}.")
 
     def dir(self, prefix=""):
         """List filenames for a sensible directory structure."""
@@ -57,5 +63,5 @@ class FeatureTree:
 
             # nodes with value and children -> a directory containing itself and all its children (flattened) as files
             yield f"{parent_dir}/{feature_id}"
-            for descendent_feature_id in v.descendent_keys(f"{feature_id}."):
+            for descendent_feature_id, _ in v.descendent_items(f"{feature_id}."):
                 yield f"{parent_dir}/{descendent_feature_id}"
