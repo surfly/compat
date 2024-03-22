@@ -63,7 +63,10 @@ def gen_overlay(*, page_feature_ids, feature_tree):
                 # error in mozilla site source; skip this table
                 continue
 
-            support_table.append(subfeature_tree.value)
+            # add general feature support, unless it's a non-specific group
+            if subfeature_tree.value is not None:
+                support_table.append(subfeature_tree.value)
+
             support_table.extend(support for _, support in subfeature_tree.descendent_items())
 
             # sparse: remove unknown rows from the right
