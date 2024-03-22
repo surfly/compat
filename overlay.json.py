@@ -90,7 +90,9 @@ def gen_overlay(*, page_feature_ids, feature_tree):
             if subfeature_tree.value is not None:
                 support_table.append(subfeature_tree.value)
 
-            support_table.extend(support for _, support in subfeature_tree.descendent_items())
+            support_table.extend(
+                support for _, support in subfeature_tree.descendent_items()
+            )
 
             # sparse: remove unknown rows from the right
             unpad_right(support_table, Support.UNKNOWN)
@@ -119,5 +121,7 @@ for feature_id in bcd.get_feature_ids(bcd_data):
 parse_support(feature_tree)
 
 page_feature_ids = get_mdn_page_feature_ids()
-overlay = dict(gen_overlay(page_feature_ids=page_feature_ids, feature_tree=feature_tree))
+overlay = dict(
+    gen_overlay(page_feature_ids=page_feature_ids, feature_tree=feature_tree)
+)
 json.dump(overlay, sys.stdout, separators=",:")
