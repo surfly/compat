@@ -37,30 +37,37 @@ def get_mdn_page_feature_ids():
 def parse_support(feature_tree):
     for path in surfly_path.glob("**/*.html"):
         fm = frontmatter.load(path)
-        feature_tree[fm["id"]] = Support[fm["support"].upper()]
+        feature_id = fm["id"]
+        support = Support[fm["support"].upper()]
+        if support == Support.UNKNOWN:
+            continue
+        feature_tree[feature_id] = support
 
 
-def unpad_right(xs):
+def unpad_right(xs, padding_value):
     while xs:
-        if xs[-1]:
+        if xs[-1] != padding_value:
             return
         xs.pop()
 
 
 def gen_overlay(*, page_feature_ids, feature_tree):
-    for path, features in page_feature_ids:
+    for path, feature_ids in page_feature_ids:
         support_tables = []
-        for feature in features:
+        for feature_id in feature_ids:
+            support_table = []
+
             try:
                 subfeature_tree = feature_tree.get_node(feature_id)
-                support_table = [support for _, support in subfeature_tree.descendent_items()]
-
-            # error in mozilla site source; skip this table
             except KeyError:
+                # error in mozilla site source; skip this table
                 continue
 
+            support_table.append(subfeature_tree.value)
+            support_table.extend(support for _, support in subfeature_tree.descendent_items())
+
             # sparse: remove unknown rows from the right
-            unpad_right(support_table)
+            unpad_right(support_table, Support.UNKNOWN)
 
             # sparse: if all rows are unknown, just say the whole table is unknown
             if not support_table:
@@ -69,19 +76,20 @@ def gen_overlay(*, page_feature_ids, feature_tree):
             support_tables.append(support_table)
 
         # make sparse: if we don't support anything on this page, skip the page
-        unpad_right(support_tables)
+        unpad_right(support_tables, Support.UNKNOWN)
         if not support_tables:
             continue
 
         yield (path, support_tables)
 
 
-# set up a FeatureTree for the BCD data to preserve its original ordering
+# set up a FeatureTree from the BCD data to preserve its original ordering
 bcd_data = bcd.download()
 feature_tree = FeatureTree()
 for feature_id in bcd.get_feature_ids(bcd_data):
     feature_tree[feature_id] = Support.UNKNOWN
 
+# populate the tree with data from our reports
 parse_support(feature_tree)
 
 page_feature_ids = get_mdn_page_feature_ids()
