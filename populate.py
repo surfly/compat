@@ -26,6 +26,7 @@ def create_feature_file(raw_path):
     if path.exists():
         return
 
+    path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w") as f:
         print("---", file=f)
         yaml.dump(dict(id=feature_id, support=Support.UNKNOWN.name.lower()), f)
