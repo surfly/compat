@@ -1,0 +1,87 @@
+
+content:
+
+  - name: features
+    label: Features
+    type: collection
+    path: features
+    extension: html
+    filename: "{fields.id}.html"
+    format: yaml-frontmatter
+
+    view:
+
+      fields:
+        - id
+        - support
+      primary: id
+      sort:
+        - id
+        - support
+      default:
+        sort: id
+        order: asc
+
+    fields:
+
+      - name: id
+        label: Identifier
+        description: |
+          Name of the feature according to MDN's browser-compat-data
+        type: string
+        required: true
+
+      - name: support
+        label: Support
+        description: |
+          What kind of support does Surfly have for this feature?
+        type: select
+        required: true
+        options:
+          values:
+            - value: unknown
+              label: |
+                Unknown
+            - value: tested
+              label: |
+                Yes (tested, no known issues)
+            - value: partial
+              label: |
+                Partial implementation (tested, has bugs or caveats)
+            - value: expected
+              label: |
+                Expected to work (not tested)
+            - value: todo
+              label: |
+                No, not yet implemented
+            - value: never
+              label: |
+                No, cannot implement due to a technical limitation
+
+      - name: tests
+        label: Tests
+        description: |
+          Paths of test files relative to the cobro repository root
+        type: string
+        list: true
+
+      - name: tickets
+        label: Tickets
+        description: Links to issues and pull requests
+        type: string
+        list: true
+
+      - name: version_added
+        label: Version added (without the leading v)
+        type: string
+
+      - name: version_removed
+        label: Version removed (without the leading v)
+        type: string
+
+      - name: body
+        label: Notes
+        type: code
+        list: true
+        options:
+          language: html
