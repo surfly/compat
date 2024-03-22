@@ -1,5 +1,28 @@
 #!/usr/bin/env python3
-"""Determine which MDN pages should be altered to include data on Surfly support."""
+"""
+Determine which MDN pages should be altered to include data on Surfly support.
+
+## Data format
+
+- keys are page paths
+    - page paths can be absent, meaning that all rows in all tables have unknown support in Surfly
+- values are lists of tables
+- a table is either:
+    - a Support value as an integer, meaning that all rows in this table have this much support in Surfly
+    - a list of rows
+- a row is a Support value as an integer, meaning that this row's feature has this much support in Surfly
+
+## How to modify tables
+
+Surfly support                                       | how to modify table
+--------------                                       | -------------------
+Unknown                                              | {yes, partial, no} → unknown
+Yes (tested, no known issues)                        | no changes
+Partial implementation (tested, has bugs or caveats) | yes → partial + note
+Expected to work (not tested)                        | yes → partial + note "not tested"
+No, not yet implemented                              | {yes, partial, unknown} → no
+No, cannot implement due to a technical limitation   | {yes, partial, unknown} → no + note
+"""
 
 import json
 import pathlib
