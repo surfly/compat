@@ -7,10 +7,10 @@ import sys
 
 import frontmatter
 
-from .featuretree import FeatureTree
-from .support import Support
+from lib.featuretree import FeatureTree
+from lib.support import Support
 
-root_path = pathlib.Path(__file__).parent.parent
+root_path = pathlib.Path(__file__).parent
 mdn_path = root_path / "mdn/files/en-us/web"
 surfly_path = root_path / "features"
 

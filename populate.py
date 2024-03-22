@@ -5,11 +5,11 @@ import sys
 
 import yaml
 
-from . import bcd
-from .featuretree import FeatureTree
-from .support import Support
+from lib import bcd
+from lib.featuretree import FeatureTree
+from lib.support import Support
 
-root_path = pathlib.Path(__file__).resolve().parent.parent
+root_path = pathlib.Path(__file__).resolve().parent
 features_path = root_path / "features"
 
 
