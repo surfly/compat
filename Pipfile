@@ -6,8 +6,7 @@ name = "pypi"
 [packages]
 python-frontmatter = "*"
 requests = "*"
-
-[dev-packages]
+pyyaml = "*"
 
 [requires]
 python_version = "3.11"
