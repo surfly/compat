@@ -1,5 +1,7 @@
 const overlay = {"Web/API/WebSocket":[[1,1]],"Web/API/WebSocket/WebSocket":[[1]],"Web/API/WebSockets_API":[[1,1]]};
 const mdn_url = 'https://developer.mozilla.org/en-US/docs/';
+const bcd_url_prefix = 'https://bcd.developer.mozilla.org/bcd/api/v0/current/';
+const scd_url_prefix = 'https://pinto-stone-talk.glitch.me/scd/';
 
 const UNKNOWN = 0;
 const TESTED = 1;
@@ -7,6 +9,14 @@ const EXPECTED = 2;
 const PARTIAL = 3;
 const TODO = 4;
 const NEVER = 5;
+
+window.__native_fetch = window.fetch;
+window.fetch = function(url, ...rest) {
+  if (url.startsWith(bcd_url_prefix)) {
+    url = url.replace(bcd_url_prefix, scd_url_prefix);
+  }
+  return window.__native_fetch.call(this, url, ...rest);
+};
 
 window.addEventListener('DOMContentLoaded', async _event => {
   if (!location.href.startsWith(mdn_url)) {
@@ -66,10 +76,17 @@ function reassign_compat_table_level(element, old_level, new_level) {
   replace_child_classes(element, `bc-supports-${old_level}`, `bc-supports-${new_level}`);
   replace_child_classes(element, `bc-level-${old_level}`, `bc-level-${new_level}`);
   replace_child_classes(element, `icon-${old_level}`, `icon-${new_level}`);
+  element.querySelector('bc-history')
 }
 
 function replace_child_classes(parent, old_class, new_class) {
   for (const child of parent.querySelectorAll(`.${old_class}`)) {
+    child.classList.replace(old_class, new_class);
+  }
+}
+
+function replace_sibling_classes(sibling, old_class, new_class) {
+  for (const child of sibling.parentElement.querySelectorAll(`.${old_class}`)) {
     child.classList.replace(old_class, new_class);
   }
 }
