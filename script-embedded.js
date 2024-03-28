@@ -1,5 +1,5 @@
 const bcd_url_prefix = 'https://bcd.developer.mozilla.org/bcd/api/v0/current/';
-const scd_url_prefix = 'https://cdn.jsdelivr.net/gh/qguv/surfly-compat-data@data/scd/';
+const scd_url_prefix = 'https://raw.githubusercontent.com/qguv/surfly-compat-data/data/scd/';
 
 const UNKNOWN = 0;
 const TESTED = 1;
