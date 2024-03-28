@@ -8,6 +8,7 @@ const PARTIAL = 3;
 const TODO = 4;
 const NEVER = 5;
 
+// intercept requests to MDN browser-compat-data
 window.__native_fetch = window.fetch;
 window.fetch = function(url, ...rest) {
   if (url.startsWith(bcd_url_prefix)) {
@@ -15,3 +16,12 @@ window.fetch = function(url, ...rest) {
   }
   return window.__native_fetch.call(this, url, ...rest);
 };
+
+// respond to messages sent from the controlling frame
+window.addEventListener('message', event => {
+
+  // user changed the controlling frame's "address bar"
+  if (event.data.type === 'nav') {
+    window.location.href = event.data.url;
+  }
+});
