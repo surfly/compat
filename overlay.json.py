@@ -2,16 +2,6 @@
 """
 Determine which MDN pages should be altered to include data on Surfly support.
 
-## Data format
-
-- keys are page paths
-    - page paths can be absent, meaning that all rows in all tables have unknown support in Surfly
-- values are lists of tables
-- a table is either:
-    - a Support value as an integer, meaning that all rows in this table have this much support in Surfly
-    - a list of rows
-- a row is a Support value as an integer, meaning that this row's feature has this much support in Surfly
-
 ## How to modify tables
 
 Surfly support                                       | how to modify table
