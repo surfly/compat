@@ -126,6 +126,6 @@ def export(feature_data, browsers, feature_id=None):
 output_path.mkdir(parents=True, exist_ok=True)
 spec = bcd.download()
 all_browsers = spec.pop('browsers')
-browsers = dict(supported_browsers(spec.pop('browsers')))
+browsers = dict(supported_browsers(all_browsers))
 overlay(spec)
 export(spec, browsers, feature_id='')
