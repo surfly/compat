@@ -38,7 +38,7 @@ root_path = pathlib.Path(__file__).parent
 surfly_path = root_path / "features"
 output_path = root_path / "scd"
 
-supported_browser_ids = {
+supported_browser_ids = [
     'chrome',
     'chrome_android',
     'edge',
@@ -46,7 +46,7 @@ supported_browser_ids = {
     'firefox_android',
     'safari',
     'safari_ios',
-}
+]
 
 
 def overlay(bcd_data, supported_browser_ids):
