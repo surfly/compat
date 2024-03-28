@@ -36,7 +36,7 @@ def create_feature_file(raw_path):
 
 bcd_data = bcd.download()
 feature_tree = FeatureTree()
-for feature_id in bcd.get_feature_ids(bcd_data):
+for feature_id, _ in bcd.get_features(bcd_data):
     feature_tree[feature_id] = Support.UNKNOWN
 
 create_top_dir(feature_tree, "api")

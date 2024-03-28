@@ -9,11 +9,11 @@ def download():
     ).json()
 
 
-def get_feature_ids(data, prefix=""):
+def get_features(data, prefix=""):
     for k, v in data.items():
         if not isinstance(v, dict):
             continue
         feature_id = f"{prefix}{k}"
         if "__compat" in v:
-            yield feature_id
-        yield from get_feature_ids(v, f"{feature_id}.")
+            yield (feature_id, v)
+        yield from get_features(v, f"{feature_id}.")
