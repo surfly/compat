@@ -123,6 +123,7 @@ def export(feature_data, browsers, feature_id=None):
             export(subfeature_data, browsers, feature_id=k if feature_id is None else f'{feature_id}.{k}')
 
 
+output_path.mkdir(parents=True, exist_ok=True)
 spec = bcd.download()
 all_browsers = spec.pop('browsers')
 browsers = dict(supported_browsers(spec.pop('browsers')))
