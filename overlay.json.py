@@ -126,7 +126,7 @@ def export(feature_data, browsers, feature_id=None):
             out = dict(
                 browsers=browsers,
                 query=feature_id,
-                data=subfeature_data,
+                data=feature_data,
             )
             feature_path = output_path / f'{feature_id}.json'
             print(feature_path.name, file=sys.stderr)
