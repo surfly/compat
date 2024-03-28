@@ -26,102 +26,105 @@ No, cannot implement due to a technical limitation   | {yes, partial, unknown} â
 
 import json
 import pathlib
-import sys
 
 import frontmatter
 
 from lib import bcd
-from lib.featuretree import FeatureTree
 from lib.support import Support
 
 root_path = pathlib.Path(__file__).parent
-mdn_path = root_path / "mdn/files/en-us/web"
 surfly_path = root_path / "features"
+output_path = root_path / "scd"
+
+browser_names = {
+    'chrome',
+    'chrome_android',
+    'edge',
+    'firefox',
+    'firefox_android',
+    'safari',
+    'safari_ios',
+}
 
 
-def get_mdn_page_feature_ids():
-    for path in mdn_path.glob("**/index.md"):
-        fm = frontmatter.load(path)
-
-        try:
-            features = fm["browser-compat"]
-
-        # skip pages without a compatibility table
-        except KeyError:
-            continue
-
-        if not isinstance(features, list):
-            features = [features]
-
-        path = fm["slug"]
-        yield (path, features)
-
-
-def parse_support(feature_tree):
+def overlay(bcd_data):
     for path in surfly_path.glob("**/*.html"):
         fm = frontmatter.load(path)
         feature_id = fm["id"]
         support = Support[fm["support"].upper()]
-        if support == Support.UNKNOWN:
-            continue
-        feature_tree[feature_id] = support
+        notes = str(fm).strip()
 
-
-def unpad_right(xs, padding_value):
-    while xs:
-        if xs[-1] != padding_value:
-            return
-        xs.pop()
-
-
-def gen_overlay(*, page_feature_ids, feature_tree):
-    for path, feature_ids in page_feature_ids:
-        support_tables = []
-        for feature_id in feature_ids:
-            support_table = []
-
-            try:
-                subfeature_tree = feature_tree.get_node(feature_id)
-            except KeyError:
-                # error in mozilla site source; skip this table
+        browser_supports = bcd.get_feature(bcd_data, feature_id)['support']
+        for browser_id, support_entries in browser_supports.items():
+            if not browser_id.startswith('surfly_'):
                 continue
+            if not isinstance(support_entries, list):
+                support_entries = [support_entries]
+            for support_entry in support_entries:
+                if notes:
+                    add_note(support_entry, notes)
+                overlay_one(support_entry, support)
 
-            # add general feature support, unless it's a non-specific group
-            if subfeature_tree.value is not None:
-                support_table.append(subfeature_tree.value)
 
-            support_table.extend(
-                support for _, support in subfeature_tree.descendent_items()
+def overlay_one(support_entry, support):
+
+    if support in (Support.NEVER, Support.TODO):
+        if not support_entry.get('version_removed'):
+            support_entry['version_added'] = False
+
+    elif support == Support.PARTIAL:
+        if support_entry.get('version_added') and not support_entry.get('version_removed'):
+            support_entry['partial_implementation'] = True
+
+    elif support == Support.EXPECTED:
+        add_note(support_entry, 'Expected to work, but not tested under Surfly.')
+
+    elif support == Support.UNKNOWN:
+        if not support_entry.get('version_removed'):
+            support_entry['version_added'] = None
+
+
+def add_note(support_entry, new_note):
+    try:
+        notes = support_entry['notes']
+    except KeyError:
+        support_entry['notes'] = new_note
+        return
+
+    if isinstance(notes, str):
+        support_entry['notes'] = [notes, new_note]
+        return
+
+    notes.insert(0, new_note)
+
+
+def supported_browsers(upstream_browsers):
+    for browser_id in browser_names:
+        upstream_browser = upstream_browsers[browser_id]
+        yield (browser_id, upstream_browser)
+
+        surfly_browser = upstream_browser.copy()
+        surfly_browser['name'] = f'Surfly on {upstream_browser["name"]}'
+        yield (f'surfly_{browser_id}', surfly_browser)
+
+
+def export(feature_data, browsers, feature_id=None):
+    for k, subfeature_data in feature_data.items():
+        if k == '__compat':
+            out = dict(
+                browsers=browsers,
+                query=feature_id,
+                data=subfeature_data,
             )
+            with (output_path / f'{feature_id}.json').open('w') as f:
+                json.dump(out, f, separators=",:")
 
-            # sparse: remove unknown rows from the right
-            unpad_right(support_table, Support.UNKNOWN)
-
-            # sparse: if all rows are unknown, just say the whole table is unknown
-            if not support_table:
-                support_table = Support.UNKNOWN
-
-            support_tables.append(support_table)
-
-        # make sparse: if we don't support anything on this page, skip the page
-        unpad_right(support_tables, Support.UNKNOWN)
-        if not support_tables:
-            continue
-
-        yield (path, support_tables)
+        else:
+            export(subfeature_data, browsers, feature_id=k if feature_id is None else f'{feature_id}.{k}')
 
 
-# set up a FeatureTree from the BCD data to preserve its original ordering
-bcd_data = bcd.download()
-feature_tree = FeatureTree()
-for feature_id in bcd.get_feature_ids(bcd_data):
-    feature_tree[feature_id] = Support.UNKNOWN
-
-# populate the tree with data from our reports
-parse_support(feature_tree)
-
-page_feature_ids = get_mdn_page_feature_ids()
-overlay = dict(
-    gen_overlay(page_feature_ids=page_feature_ids, feature_tree=feature_tree)
-)
-json.dump(overlay, sys.stdout, separators=",:")
+spec = bcd.download()
+all_browsers = spec.pop('browsers')
+browsers = dict(supported_browsers(spec.pop('browsers')))
+overlay(spec)
+export(spec, browsers, feature_id='')
