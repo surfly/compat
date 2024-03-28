@@ -71,7 +71,7 @@ def overlay(bcd_data, supported_browser_ids):
             # copy support data for the browser running Surfly
             surfly_support_entries = copy.deepcopy(native_browser_supports[browser_id])
             feature['support'][f'surfly_{browser_id}'] = surfly_support_entries
-            if isinstance(surfly_support_entries, list):
+            if not isinstance(surfly_support_entries, list):
                 surfly_support_entries = [surfly_support_entries]
             for support_entry in surfly_support_entries:
                 if notes:
