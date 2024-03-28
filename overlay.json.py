@@ -26,6 +26,7 @@ No, cannot implement due to a technical limitation   | {yes, partial, unknown} â
 
 import json
 import pathlib
+import sys
 
 import frontmatter
 
@@ -116,6 +117,8 @@ def export(feature_data, browsers, feature_id=None):
                 query=feature_id,
                 data=subfeature_data,
             )
+            feature_path = output_path / f'{feature_id}.json'
+            print(feature_path.name, file=sys.stderr)
             with (output_path / f'{feature_id}.json').open('w') as f:
                 json.dump(out, f, separators=",:")
 
@@ -128,4 +131,4 @@ spec = bcd.download()
 all_browsers = spec.pop('browsers')
 browsers = dict(supported_browsers(all_browsers))
 overlay(spec)
-export(spec, browsers, feature_id='')
+export(spec, browsers)
