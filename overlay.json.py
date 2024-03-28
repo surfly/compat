@@ -27,6 +27,7 @@ No, cannot implement due to a technical limitation   | {yes, partial, unknown} â
 import json
 import pathlib
 import sys
+import copy
 
 import frontmatter
 
@@ -37,7 +38,7 @@ root_path = pathlib.Path(__file__).parent
 surfly_path = root_path / "features"
 output_path = root_path / "scd"
 
-browser_names = {
+supported_browser_ids = {
     'chrome',
     'chrome_android',
     'edge',
@@ -48,19 +49,29 @@ browser_names = {
 }
 
 
-def overlay(bcd_data):
+def overlay(bcd_data, supported_browser_ids):
     for path in surfly_path.glob("**/*.html"):
         fm = frontmatter.load(path)
         feature_id = fm["id"]
         support = Support[fm["support"].upper()]
         notes = str(fm).strip()
 
-        browser_supports = bcd.get_feature(bcd_data, feature_id)['support']
-        for browser_id, support_entries in browser_supports.items():
-            if not browser_id.startswith('surfly_'):
+        feature = bcd.get_feature(bcd_data, feature_id)
+        native_browser_supports = feature['support']
+        feature['support'] = {}
+
+        for browser_id in supported_browser_ids:
+
+            if browser_id not in native_browser_supports:
                 continue
-            if not isinstance(support_entries, list):
-                support_entries = [support_entries]
+
+            # carry over original support data from native browser
+            feature['support'][browser_id] = native_browser_supports[browser_id]
+
+            # copy support data for the browser running Surfly
+            surfly_browser_supports = feature['support'][f'surfly_{browser_id}'] = copy.deepcopy(native_browser_supports[browser_id])
+            if isinstance(surfly_browser_supports, list):
+                support_entries = [surfly_browser_supports]
             for support_entry in support_entries:
                 if notes:
                     add_note(support_entry, notes)
@@ -99,8 +110,8 @@ def add_note(support_entry, new_note):
     notes.insert(0, new_note)
 
 
-def supported_browsers(upstream_browsers):
-    for browser_id in browser_names:
+def overlay_browsers(upstream_browsers, supported_browser_ids):
+    for browser_id in supported_browser_ids:
         upstream_browser = upstream_browsers[browser_id]
         yield (browser_id, upstream_browser)
 
@@ -129,6 +140,6 @@ def export(feature_data, browsers, feature_id=None):
 output_path.mkdir(parents=True, exist_ok=True)
 spec = bcd.download()
 all_browsers = spec.pop('browsers')
-browsers = dict(supported_browsers(all_browsers))
-overlay(spec)
+browsers = dict(overlay_browsers(all_browsers, supported_browser_ids))
+overlay(spec, supported_browser_ids)
 export(spec, browsers)
