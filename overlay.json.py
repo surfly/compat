@@ -119,7 +119,7 @@ def export(feature_data, browsers, feature_id=None):
             with (output_path / f'{feature_id}.json').open('w') as f:
                 json.dump(out, f, separators=",:")
 
-        else:
+        elif isinstance(subfeature_data, dict):
             export(subfeature_data, browsers, feature_id=k if feature_id is None else f'{feature_id}.{k}')
 
 
