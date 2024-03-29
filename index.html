@@ -12,15 +12,14 @@
     <div class="wrapper">
       <div class="content" role="main">
 
-        <h1>Surfly Compatibility</h1>
-
-        <div>
+        <div class="controls">
+          <h1>Surfly Compatibility</h1>
           <form>
 
             <label for="url">URL</label>
             <div id="address-bar">
-              <input id="url" placeholder="url" name="url" type="text" value="https://qguv.github.io/surfly-compat-data/examples.html">
-              <button id="go" onclick="navigate()" type="button" class="show-after-start">Go</button>
+              <input id="url" placeholder="url" name="url" type="text" value="https://developer.mozilla.org/en-US/docs/Web/API/">
+              <button id="go" onclick="navigate()" type="button" hidden class="show-after-start">Go</button>
             </div>
 
             <div>
@@ -41,6 +40,48 @@
             </div>
 
             <button onclick="create_session().then(url => show_session(url))" type="button" class="hide-after-start">Start</button>
+
+            <div hidden class="show-after-start show-on-hover-container">
+              <h2 class="hide-on-hover">Examples</h2>
+
+              <table class="show-on-hover">
+                  <tr>
+                      <td><a class="navigate" href="https://developer.mozilla.org/en-US/docs/Web/API/WebSocket">api.WebSocket</a></td>
+                      <td>tested</td>
+                      <td><a target="_blank" href="https://app.pagescms.org/qguv/surfly-compat-data/main/content/features/edit/features%2Fapi%2FWebSocket%2Fapi.WebSocket.html">edit</a></td>
+                  </tr>
+
+                  <tr>
+                      <td><a class="navigate" href="https://developer.mozilla.org/en-US/docs/Web/API/InputEvent">api.InputEvent</a></td>
+                      <td>tested</td>
+                      <td><a target="_blank" href="https://app.pagescms.org/qguv/surfly-compat-data/main/content/features/edit/features%2Fapi%2FInputEvent%2Fapi.InputEvent.html">edit</a></td>
+                  </tr>
+
+                  <tr>
+                      <td><a class="navigate" href="https://developer.mozilla.org/en-US/docs/Web/API/InputEvent/inputType">api.InputEvent.inputType</a></td>
+                      <td>partial</td>
+                      <td><a target="_blank" href="https://app.pagescms.org/qguv/surfly-compat-data/main/content/features/edit/features%2Fapi%2FInputEvent%2Fapi.InputEvent.inputType.html">edit</a></td>
+                  </tr>
+
+                  <tr>
+                      <td><a class="navigate" href="https://developer.mozilla.org/en-US/docs/Web/API/InputEvent/InputEvent">api.InputEvent.InputEvent</a></td>
+                      <td>expected</td>
+                      <td><a target="_blank" href="https://app.pagescms.org/qguv/surfly-compat-data/main/content/features/edit/features%2Fapi%2FInputEvent%2Fapi.InputEvent.InputEvent.html">edit</a></td>
+                  </tr>
+
+                  <tr>
+                      <td><a class="navigate" href="https://developer.mozilla.org/en-US/docs/Web/API/DeviceOrientationEvent">api.DeviceOrientationEvent</a></td>
+                      <td>expected + note</td>
+                      <td><a target="_blank" href="https://app.pagescms.org/qguv/surfly-compat-data/main/content/features/edit/features%2Fapi%2FDeviceOrientationEvent%2Fapi.DeviceOrientationEvent.html">edit</a></td>
+                  </tr>
+
+                  <tr>
+                      <td><a class="navigate" href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Serial_API">api.Serial</a></td>
+                      <td>never</td>
+                      <td><a target="_blank" href="https://app.pagescms.org/qguv/surfly-compat-data/main/content/features/edit/features%2Fapi%2FSerial%2Fapi.Serial.html">edit</a></td>
+                  </tr>
+              </table>
+            </div>
 
           </form>
         </div>

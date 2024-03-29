@@ -2,6 +2,12 @@
 /* session set-up */
 /******************/
 
+document.addEventListener('DOMContentLoaded', (event) => {
+  for (const a of document.querySelectorAll('a.navigate')) {
+    a.addEventListener('click', click_example_link);
+  }
+});
+
 // request a new session from the Surfly API, returns URL for iframe.src
 async function create_session() {
   const api_key = document.querySelector('#api_key').value;
@@ -38,6 +44,13 @@ function show_session(headless_link) {
   document.querySelector('iframe').src = headless_link;
 }
 
+function click_example_link(event) {
+  event.preventDefault();
+  const url = event.target.href;
+  document.querySelector('#url').value = url;
+  navigate();
+}
+
 /*************************/
 /* session communication */
 /*************************/
@@ -49,7 +62,7 @@ function command(data) {
 
 // tell the script_embedded to load a provided URL
 function navigate() {
-  let url = document.querySelector('#url').value;
+  const url = document.querySelector('#url').value;
   command({type: 'nav', url});
 }
 

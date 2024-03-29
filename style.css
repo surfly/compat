@@ -17,14 +17,12 @@
 /* Import fonts */
 @font-face {
   font-family: HK Grotesk;
-  src: url("https://cdn.glitch.me/605e2a51-d45f-4d87-a285-9410ad350515%2FHKGrotesk-Regular.otf?v=1603136326027")
-    format("opentype");
+  src: sans-serif;
 }
 @font-face {
   font-family: HK Grotesk;
   font-weight: bold;
-  src: url("https://cdn.glitch.me/605e2a51-d45f-4d87-a285-9410ad350515%2FHKGrotesk-Bold.otf?v=1603136323437")
-    format("opentype");
+  src: sans-serif;
 }
 
 a:visited {
@@ -43,7 +41,11 @@ a:hover {
 body {
   font-family: HK Grotesk;
   background-color: var(--color-bg);
-  max-width: 700px;
+  margin: 0 auto;
+}
+
+.controls {
+  width: 700px;
   margin: 0 auto;
 }
 
@@ -118,8 +120,23 @@ iframe {
   border: none;
   margin: 0;
   padding: 0;
+  width: 100vw;
 }
 
 button {
   cursor: pointer;
+}
+
+td {
+  padding: 0 1em;
+}
+
+.show-on-hover-container .show-on-hover,
+.show-on-hover-container:hover .hide-on-hover {
+  display: none;
+}
+
+.show-on-hover-container .hide-on-hover,
+.show-on-hover-container:hover .show-on-hover {
+  display: block;
 }
