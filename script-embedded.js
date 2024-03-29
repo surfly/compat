@@ -18,3 +18,8 @@ window.addEventListener('message', event => {
     window.location.href = event.data.url;
   }
 });
+
+// wider tables
+const override_style = document.createElement('style');
+override_style.innerHTML = '.main-wrapper { max-width:2000px !important; }';
+document.head.append(override_style);
