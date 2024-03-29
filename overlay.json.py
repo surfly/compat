@@ -104,7 +104,7 @@ def add_note(support_entry, new_note):
         return
 
     if isinstance(notes, str):
-        support_entry['notes'] = [notes, new_note]
+        support_entry['notes'] = [new_note, notes]
         return
 
     notes.insert(0, new_note)
