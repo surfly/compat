@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Surfly Compatibility</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="script.js"></script>
+  </head>
+
+  <body>
+    <div class="wrapper">
+      <div class="content" role="main">
+
+        <h1>Surfly Compatibility</h1>
+
+        <div>
+          <form>
+
+            <label for="url">URL</label>
+            <div id="address-bar">
+              <input id="url" placeholder="url" name="url" type="text" value="https://raw.githubusercontent.com/qguv/surfly-compat-data/main/demo/examples.html">
+              <button id="go" onclick="navigate()" type="button" class="show-after-start">Go</button>
+            </div>
+
+            <div>
+              <label for="api_key" class="hide-after-start">
+                REST API key (with an unlocked headless feature)
+                <input id="api_key" placeholder="api_key" name="api_key" type="text">
+              </label>
+            </div>
+
+            <div>
+              <label for="server" class="hide-after-start">
+                Server
+                <select id="server">
+                  <option value="surfly.online">surfly.online</option>
+                  <option value="surfly.com">surfly.com</option>
+                </select>
+              </label>
+            </div>
+
+            <button onclick="create_session().then(url => show_session(url))" type="button" class="hide-after-start">Start</button>
+
+          </form>
+        </div>
+
+        <iframe class="show-after-start" hidden></iframe>
+
+      </div>
+    </div>
+  </body>
+</html>
