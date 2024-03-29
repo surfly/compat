@@ -1,4 +1,11 @@
 ---
 id: api.InputEvent.inputType
-support: unknown
+support: partial
+tests:
+  - tests/cobro_selenium/static/input_events.html
+tickets:
+  - https://github.com/surfly/cobro/pull/6209
+  - https://github.com/surfly/it/issues/1704
+version_added: "3.41"
 ---
+Surfly has special support for deleteContentBackward, deleteContentForward, deleteSoftLineBackward, and deleteSoftLineForward to better support in-control followers.
