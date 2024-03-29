@@ -1,11 +1,18 @@
+let session_created = false;
+
 /******************/
 /* session set-up */
 /******************/
 
 document.addEventListener('DOMContentLoaded', (event) => {
+
+  // wire up links to navigate within session
   for (const a of document.querySelectorAll('a.navigate')) {
     a.addEventListener('click', click_example_link);
   }
+
+  // wire up form submit on controls to start the session or send a navigation command
+  document.querySelector('form').addEventListener('submit', handle_submit);
 });
 
 // request a new session from the Surfly API, returns URL for iframe.src
@@ -42,6 +49,17 @@ function show_session(headless_link) {
     node.removeAttribute('hidden');
   }
   document.querySelector('iframe').src = headless_link;
+}
+
+async function handle_submit(event) {
+  event.preventDefault();
+  if (session_created) {
+    navigate();
+  } else {
+    const url = await create_session();
+    session_created = true;
+    show_session(url);
+  }
 }
 
 function click_example_link(event) {

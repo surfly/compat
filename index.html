@@ -13,14 +13,8 @@
       <div class="content" role="main">
 
         <div class="controls">
-          <h1>Surfly Compatibility</h1>
-          <form>
-
-            <label for="url">URL</label>
-            <div id="address-bar">
-              <input id="url" placeholder="url" name="url" type="text" value="https://developer.mozilla.org/en-US/docs/Web/API/">
-              <button id="go" onclick="navigate()" type="button" hidden class="show-after-start">Go</button>
-            </div>
+          <h1 class='hide-after-start'>Surfly Compatibility</h1>
+          <form onsubmit="return false;">
 
             <div>
               <label for="api_key" class="hide-after-start">
@@ -39,7 +33,12 @@
               </label>
             </div>
 
-            <button onclick="create_session().then(url => show_session(url))" type="button" class="hide-after-start">Start</button>
+            <label for="url">URL</label>
+            <div id="address-bar">
+              <input id="url" placeholder="url" name="url" type="text" value="https://developer.mozilla.org/en-US/docs/Web/API/">
+              <button id="go" type="submit" type="button">Go</button>
+            </div>
+
 
             <div hidden class="show-after-start show-on-hover-container">
               <h2 class="hide-on-hover">Examples</h2>
