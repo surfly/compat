@@ -27,7 +27,7 @@ content:
       - name: id
         label: Identifier
         description: |
-          Name of the feature according to MDN's browser-compat-data
+          (do not edit) Name of the feature according to MDN's browser-compat-data
         type: string
         required: true
 
