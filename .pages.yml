@@ -34,7 +34,7 @@ content:
       - name: support
         label: Support
         description: |
-          What kind of support does Surfly have for this feature?
+          Will this feature work in general within Surfly?
         type: select
         required: true
         options:
@@ -42,21 +42,24 @@ content:
             - value: unknown
               label: |
                 Unknown
-            - value: tested
+            - value: supported
               label: |
-                Yes (tested, no known issues)
-            - value: partial
-              label: |
-                Partial implementation (tested, has bugs or caveats)
+                Yes
             - value: expected
               label: |
-                Expected to work (not tested)
+                Expected to work, but nobody has checked yet
             - value: todo
               label: |
                 No, not yet implemented
             - value: never
               label: |
                 No, cannot implement due to a technical limitation
+
+      - name: limited
+        label: Limitations?
+        type: boolean
+        description: |
+          Are there any known bugs or caveats preventing this feature from working and synchronizing to all participants?
 
       - name: tests
         label: Tests
