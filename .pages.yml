@@ -1,4 +1,3 @@
-
 content:
 
   - name: features
@@ -60,9 +59,9 @@ content:
         description: |
           When the tab owner is in control, are there any known bugs or caveats preventing this feature from working and synchronizing to all participants?
           Note: if this field is not empty, this feature will be listed with partial support in compatibility tables.
-        type: code
+        type: text
         options:
-          language: html
+          rows: 1
 
       - name: icf_support
         label: In-control follower support
@@ -95,9 +94,9 @@ content:
         description: |
           When the tab owner is not in control, are there any known bugs or caveats preventing this feature from working and synchronizing to all participants?
           Note: if this field is not empty, this feature will be listed with partial support in compatibility tables.
-        type: code
+        type: text
         options:
-          language: html
+          rows: 1
 
       - name: tests
         label: Tests
@@ -123,9 +122,11 @@ content:
       - name: internal_note
         label: Internal note (not visible to clients)
         type: text
+        options:
+          rows: 1
 
       - name: body
         label: Additional public notes
-        type: code
+        type: text
         options:
-          language: html
+          rows: 1
