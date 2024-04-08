@@ -1,10 +1,13 @@
 let session_created = false;
 
-/******************/
-/* session set-up */
-/******************/
-
 document.addEventListener('DOMContentLoaded', (event) => {
+  const input_api_key = document.querySelector('#api_key');
+
+  const params = new URLSearchParams(document.location.search);
+  const api_key = params.get("api_key");
+  if (api_key !== null) {
+    input_api_key.value = api_key;
+  }
 
   // wire up links to navigate within session
   for (const a of document.querySelectorAll('a.navigate')) {
@@ -68,10 +71,6 @@ function click_example_link(event) {
   document.querySelector('#url').value = url;
   navigate();
 }
-
-/*************************/
-/* session communication */
-/*************************/
 
 // send a command to the script_embedded running inside the session
 function command(data) {
