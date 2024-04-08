@@ -45,9 +45,16 @@ def overlay(bcd_data, supported_browser_ids):
         fm = frontmatter.load(path)
         feature_id = fm["id"]
         support = Support[fm["support"].upper()]
+        icf_support_raw = fm["in_control_follower_support"]
         limitations = fm["limitations"]
-        has_limitations = bool(limitations.strip())
+        icf_limitations = fm["icf_limitations"]
         note = str(fm)
+
+        # handle empty support
+        icf_support = Support[icf_support_raw.upper()] if icf_support_raw else support
+
+        has_limitations = bool(limitations.strip())
+        has_icf_limitations = bool(icf_limitations.strip())
         has_note = bool(note.strip())
 
         feature = bcd.get_feature(bcd_data, feature_id)
@@ -62,13 +69,14 @@ def overlay(bcd_data, supported_browser_ids):
             # carry over original support data from native browser
             feature['support'][browser_id] = native_browser_supports[browser_id]
 
-            # create "Surfly browser" column: start with a copy of the native browser
-            surfly_support_entries = (
-                dict(version_added=None)
-                if support == Support.UNKNOWN
-                else copy.deepcopy(native_browser_supports[browser_id])
+            # create "Surfly browser" column: start with a copy of the native browser support data
+            surfly_support_entries = create_surfly_support_entries(
+                support,
+                has_limitations,
+                icf_support,
+                has_icf_limitations,
+                native_browser_supports[browser_id],
             )
-
             feature['support'][f'surfly_{browser_id}'] = surfly_support_entries
 
             # always work with a list (simpler)
@@ -77,31 +85,55 @@ def overlay(bcd_data, supported_browser_ids):
             if not surfly_support_entries:
                 continue
 
-            for support_entry in surfly_support_entries:
-                overlay_one(support_entry, support, limitations)
-
             if has_note:
                 add_note(surfly_support_entries[0], note)
 
+            icf_notes = []
+            if support != icf_support:
+                if icf_support == Support.UNKNOWN:
+                    icf_notes.append('unknown support.')
+                elif icf_support == Support.SUPPORTED:
+                    icf_notes.append('supported.')
+                elif icf_support == Support.EXPECTED:
+                    icf_notes.append('expected to work.')
+                elif icf_support == Support.TODO:
+                    icf_notes.append('not yet supported.')
+                elif icf_support == Support.NEVER:
+                    icf_notes.append('cannot support.')
+            if has_icf_limitations:
+                icf_notes.append(icf_limitations)
+            if icf_notes:
+                icf_notes.insert(0, 'In-control followers:')
+                add_note(surfly_support_entries[0], ' '.join(icf_notes))
+
             if has_limitations:
-                add_note(support_entry, limitations)
+                add_note(surfly_support_entries[0], limitations)
 
             # prepend notes to the last entry
             if support == Support.EXPECTED:
                 add_note(surfly_support_entries[0], 'Expected to work')
             elif support == Support.UNKNOWN:
                 add_note(surfly_support_entries[0], 'Unknown Surfly support')
+            elif support == Support.NEVER:
+                add_note(surfly_support_entries[0], 'Surfly will not implement this feature due to technical limitations')
 
 
-def overlay_one(support_entry, support, has_limitations):
+def create_surfly_support_entries(support, has_limitations, icf_support, has_icf_limitations, native_support_entries):
+    if support == Support.UNKNOWN:
+        return dict(version_added=None)
 
-    if support in (Support.NEVER, Support.TODO):
-        if not support_entry.get('version_removed'):
-            support_entry['version_added'] = False
+    if support in (Support.TODO, Support.NEVER):
+        return dict(version_added=False)
 
-    elif has_limitations:
-        if support_entry.get('version_added') and not support_entry.get('version_removed'):
-            support_entry['partial_implementation'] = True
+    surfly_support_entries = copy.deepcopy(native_support_entries)
+
+    if has_limitations or has_icf_limitations or icf_support not in (Support.SUPPORTED, Support.EXPECTED):
+        xs = surfly_support_entries if isinstance(surfly_support_entries, list) else [surfly_support_entries]
+        for support_entry in xs:
+            if support_entry.get('version_added') and not support_entry.get('version_removed'):
+                support_entry['partial_implementation'] = True
+
+    return surfly_support_entries
 
 
 def add_note(support_entry, new_note):
