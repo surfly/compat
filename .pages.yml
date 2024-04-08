@@ -55,11 +55,14 @@ content:
               label: |
                 No, cannot implement due to a technical limitation
 
-      - name: limited
+      - name: limitations
         label: Limitations?
-        type: boolean
         description: |
           Are there any known bugs or caveats preventing this feature from working and synchronizing to all participants?
+          Note: if this field is not empty, this feature will be listed with partial support in compatibility tables.
+        type: code
+        options:
+          language: html
 
       - name: tests
         label: Tests
