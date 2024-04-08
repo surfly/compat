@@ -79,17 +79,17 @@ def overlay(bcd_data, supported_browser_ids):
             for support_entry in surfly_support_entries:
                 overlay_one(support_entry, support, limitations)
 
+            if note:
+                add_note(surfly_support_entries[0], note)
+
+            if has_limitations:
+                add_note(support_entry, limitations)
+
             # prepend notes to the last entry
             if support == Support.EXPECTED:
                 add_note(surfly_support_entries[0], 'Expected to work')
             elif support == Support.UNKNOWN:
                 add_note(surfly_support_entries[0], 'Unknown Surfly support')
-
-            if has_limitations:
-                add_note(support_entry, limitations)
-
-            if note:
-                add_note(surfly_support_entries[0], note)
 
 
 def overlay_one(support_entry, support, has_limitations):
