@@ -103,7 +103,7 @@ def overlay(bcd_data, supported_browser_ids):
             if has_icf_limitations:
                 icf_notes.append(icf_limitations)
             if icf_notes:
-                icf_notes.insert(0, "Controlling another user's tab:")
+                icf_notes.insert(0, "<strong>Controlling another user's tab:</strong>")
                 add_note(surfly_support_entries[0], ' '.join(icf_notes))
 
             if has_limitations:
@@ -121,7 +121,7 @@ def overlay(bcd_data, supported_browser_ids):
 
             if support_level_note:
                 if icf_notes:
-                    support_level_note = f'Tab owner in control: {support_level_note}'
+                    support_level_note = f'<strong>Tab owner in control:</strong> {support_level_note}'
                 else:
                     support_level_note = capitalize(support_level_note)
                 add_note(surfly_support_entries[0], support_level_note)
