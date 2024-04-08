@@ -86,7 +86,7 @@ content:
         type: string
 
       - name: body
-        label: Notes
+        label: Additional notes
         type: code
         options:
           language: html
