@@ -5,8 +5,7 @@ import enum
 
 class Support(enum.IntEnum):
     UNKNOWN = 0
-    TESTED = 1
+    SUPPORTED = 1
     EXPECTED = 2
-    PARTIAL = 3
-    TODO = 4
-    NEVER = 5
+    TODO = 3
+    NEVER = 4

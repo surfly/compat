@@ -45,6 +45,7 @@ def overlay(bcd_data, supported_browser_ids):
         fm = frontmatter.load(path)
         feature_id = fm["id"]
         support = Support[fm["support"].upper()]
+        is_limited = Support[fm["limited"].upper()]
         note = str(fm).strip()
 
         feature = bcd.get_feature(bcd_data, feature_id)
@@ -69,7 +70,7 @@ def overlay(bcd_data, supported_browser_ids):
                 continue
 
             for support_entry in surfly_support_entries:
-                overlay_one(support_entry, support)
+                overlay_one(support_entry, support, is_limited)
 
             # prepend notes to the last entry
             if support == Support.EXPECTED:
@@ -82,13 +83,13 @@ def overlay(bcd_data, supported_browser_ids):
 
 
 
-def overlay_one(support_entry, support):
+def overlay_one(support_entry, support, is_limited):
 
     if support in (Support.NEVER, Support.TODO):
         if not support_entry.get('version_removed'):
             support_entry['version_added'] = False
 
-    elif support == Support.PARTIAL:
+    elif is_limited:
         if support_entry.get('version_added') and not support_entry.get('version_removed'):
             support_entry['partial_implementation'] = True
 
