@@ -1,19 +1,5 @@
 #!/usr/bin/env python3
-"""
-Determine which MDN pages should be altered to include data on Surfly support.
-
-## How to modify tables
-
-Surfly support                                       | limited  | how to modify table
---------------                                       | -------  | -------------------
-Unknown                                              | (ignore) | {yes, partial, no} → unknown
-Supported                                            | `false`  | no changes
-Supported                                            | `true`   | yes → partial + note
-Expected                                             | `false`  | yes → partial + note "not tested"
-Expected                                             | `true`   | yes → partial + note "not tested"
-No, not yet implemented                              | (ignore) | {yes, partial, unknown} → no
-No, cannot implement due to a technical limitation   | (ignore) | {yes, partial, unknown} → no + note
-"""
+"""Generate browser compatibility API data to be requested from MDN pages."""
 
 import json
 import pathlib
@@ -48,14 +34,10 @@ def overlay(bcd_data, supported_browser_ids):
         limitations = fm.get("limitations", "")
         icf_support_raw = fm.get("icf_support", "")
         icf_limitations = fm.get("icf_limitations", "")
-        note = str(fm)
+        extra_note = str(fm)
 
         # handle empty support
         icf_support = Support[icf_support_raw.upper()] if icf_support_raw else support
-
-        has_limitations = bool(limitations.strip())
-        has_icf_limitations = bool(icf_limitations.strip())
-        has_note = bool(note.strip())
 
         feature = bcd.get_feature(bcd_data, feature_id)
         native_browser_supports = feature['support']
@@ -71,60 +53,14 @@ def overlay(bcd_data, supported_browser_ids):
 
             # create "Surfly browser" column: start with a copy of the native browser support data
             surfly_support_entries = create_surfly_support_entries(
-                support,
-                has_limitations,
-                icf_support,
-                has_icf_limitations,
                 native_browser_supports[browser_id],
+                support,
+                limitations,
+                icf_support,
+                icf_limitations,
+                extra_note,
             )
             feature['support'][f'surfly_{browser_id}'] = surfly_support_entries
-
-            # always work with a list (simpler)
-            if isinstance(surfly_support_entries, dict):
-                surfly_support_entries = [surfly_support_entries]
-            if not surfly_support_entries:
-                continue
-
-            if has_note:
-                add_note(surfly_support_entries[0], note)
-
-            icf_notes = []
-            if support != icf_support:
-                if icf_support == Support.UNKNOWN:
-                    icf_notes.append('unknown support.')
-                elif icf_support == Support.SUPPORTED:
-                    icf_notes.append('supported.')
-                elif icf_support == Support.EXPECTED:
-                    icf_notes.append('expected to work.')
-                elif icf_support == Support.TODO:
-                    icf_notes.append('not yet supported.')
-                elif icf_support == Support.NEVER:
-                    icf_notes.append('cannot support due to a browser limitation.')
-            if has_icf_limitations:
-                icf_notes.append(icf_limitations)
-            if icf_notes:
-                icf_notes.insert(0, "<strong>Controlling another user's tab:</strong>")
-                add_note(surfly_support_entries[0], ' '.join(icf_notes))
-
-            if has_limitations:
-                add_note(surfly_support_entries[0], limitations)
-
-            support_level_note = None
-            if not is_supported(native_browser_supports) or support == Support.NEVER:
-                support_level_note = 'cannot support due to a browser limitation'
-            elif support == Support.EXPECTED:
-                support_level_note = 'expected to work'
-            elif support == Support.UNKNOWN:
-                support_level_note = 'unknown Surfly support'
-            elif icf_notes and support == Support.SUPPORTED:
-                support_level_note = 'full Surfly support'
-
-            if support_level_note:
-                if icf_notes:
-                    support_level_note = f'<strong>Tab owner in control:</strong> {support_level_note}'
-                else:
-                    support_level_note = capitalize(support_level_note)
-                add_note(surfly_support_entries[0], support_level_note)
 
 
 def capitalize(s):
@@ -142,27 +78,82 @@ def is_supported(support_entries):
     return latest.get('version_added') and not latest.get('version_removed')
 
 
-def create_surfly_support_entries(support, has_limitations, icf_support, has_icf_limitations, native_support_entries):
-    if is_supported(native_support_entries):
+def create_surfly_support_entries(
+    native_support_entries,
+    support,
+    limitations,
+    icf_support,
+    icf_limitations,
+    extra_note,
+):
+    if not is_supported(native_support_entries):
+        return dict(version_added=False)
 
-        if support == Support.UNKNOWN:
-            return dict(version_added=None)
+    if support == Support.UNKNOWN:
+        surfly_support_entries = dict(version_added=None)
 
-        if support in (Support.TODO, Support.NEVER):
-            return dict(version_added=False)
+    elif support in (Support.TODO, Support.NEVER):
+        surfly_support_entries = dict(version_added=False)
 
-    surfly_support_entries = copy.deepcopy(native_support_entries)
+    else:
+        surfly_support_entries = copy.deepcopy(native_support_entries)
 
-    if has_limitations or has_icf_limitations or icf_support not in (Support.SUPPORTED, Support.EXPECTED):
-        xs = surfly_support_entries if isinstance(surfly_support_entries, list) else [surfly_support_entries]
-        for support_entry in xs:
-            if is_supported(support_entry):
-                support_entry['partial_implementation'] = True
+        if limitations.strip() or icf_limitations.strip() or icf_support not in (Support.SUPPORTED, Support.EXPECTED):
+            xs = surfly_support_entries if isinstance(surfly_support_entries, list) else [surfly_support_entries]
+            for support_entry in xs:
+                if is_supported(support_entry):
+                    support_entry['partial_implementation'] = True
+
+    for n in create_support_notes(support, limitations, icf_support, icf_limitations, extra_note):
+        add_note(surfly_support_entries, n)
 
     return surfly_support_entries
 
+def create_support_notes(support, limitations, icf_support, icf_limitations, extra_note):
+    if extra_note.strip():
+        yield extra_note
+
+    icf_notes = []
+    if support != icf_support:
+        if icf_support == Support.UNKNOWN:
+            icf_notes.append('unknown support.')
+        elif icf_support == Support.SUPPORTED:
+            icf_notes.append('supported.')
+        elif icf_support == Support.EXPECTED:
+            icf_notes.append('expected to work.')
+        elif icf_support == Support.TODO:
+            icf_notes.append('not yet supported.')
+        elif icf_support == Support.NEVER:
+            icf_notes.append('cannot support due to a browser limitation.')
+    if icf_limitations.strip():
+        icf_notes.append(icf_limitations)
+    if icf_notes:
+        icf_notes.insert(0, "<strong>Controlling another user's tab:</strong>")
+        yield ' '.join(icf_notes)
+
+    notes = []
+    if support == Support.NEVER:
+        notes.append('cannot support due to a browser limitation.')
+    elif support == Support.EXPECTED:
+        notes.append('expected to work.')
+    elif support == Support.UNKNOWN:
+        notes.append('unknown Surfly support.')
+    elif icf_notes and support == Support.SUPPORTED:
+        notes.append('full Surfly support.')
+    if limitations.strip():
+        notes.append(limitations)
+    if notes:
+        if icf_notes:
+            notes.insert(0, "<strong>Tab owner in control:</strong>")
+            yield ' '.join(notes)
+        else:
+            yield capitalize(' '.join(notes))
+
 
 def add_note(support_entry, new_note):
+    if isinstance(support_entry, list):
+        support_entry = support_entry[0]
+
     try:
         notes = support_entry['notes']
     except KeyError:
