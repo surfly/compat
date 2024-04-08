@@ -1,6 +1,8 @@
 ---
 id: api.InputEvent.inputType
 support: supported
+icf_limitations: |
+  Special support for deleteContentBackward, deleteContentForward, deleteSoftLineBackward, and deleteSoftLineForward. For other input types, quickly-typed keystrokes can be missed if the page's event handlers are very slow.
 tests:
   - tests/cobro_selenium/static/input_events.html
 tickets:
@@ -8,4 +10,3 @@ tickets:
   - https://github.com/surfly/it/issues/1704
 version_added: "3.41"
 ---
-Surfly has special support for deleteContentBackward, deleteContentForward, deleteSoftLineBackward, and deleteSoftLineForward to better support in-control followers.
