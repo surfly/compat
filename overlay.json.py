@@ -110,12 +110,12 @@ def overlay(bcd_data, supported_browser_ids):
                 add_note(surfly_support_entries[0], limitations)
 
             support_level_note = None
-            if support == Support.EXPECTED:
+            if not is_supported(native_browser_supports) or support == Support.NEVER:
+                support_level_note = 'cannot support due to a browser limitation'
+            elif support == Support.EXPECTED:
                 support_level_note = 'expected to work'
             elif support == Support.UNKNOWN:
                 support_level_note = 'unknown Surfly support'
-            elif support == Support.NEVER:
-                support_level_note = 'cannot support due to a browser limitation'
             elif icf_notes and support == Support.SUPPORTED:
                 support_level_note = 'full Surfly support'
 
@@ -134,19 +134,29 @@ def capitalize(s):
     return ' '.join(words)
 
 
-def create_surfly_support_entries(support, has_limitations, icf_support, has_icf_limitations, native_support_entries):
-    if support == Support.UNKNOWN:
-        return dict(version_added=None)
+def is_supported(support_entries):
+    if not support_entries:
+        return None
 
-    if support in (Support.TODO, Support.NEVER):
-        return dict(version_added=False)
+    latest = support_entries[0] if isinstance(support_entries, list) else support_entries
+    return latest.get('version_added') and not latest.get('version_removed')
+
+
+def create_surfly_support_entries(support, has_limitations, icf_support, has_icf_limitations, native_support_entries):
+    if is_supported(native_support_entries):
+
+        if support == Support.UNKNOWN:
+            return dict(version_added=None)
+
+        if support in (Support.TODO, Support.NEVER):
+            return dict(version_added=False)
 
     surfly_support_entries = copy.deepcopy(native_support_entries)
 
     if has_limitations or has_icf_limitations or icf_support not in (Support.SUPPORTED, Support.EXPECTED):
         xs = surfly_support_entries if isinstance(surfly_support_entries, list) else [surfly_support_entries]
         for support_entry in xs:
-            if support_entry.get('version_added') and not support_entry.get('version_removed'):
+            if is_supported(support_entry):
                 support_entry['partial_implementation'] = True
 
     return surfly_support_entries
