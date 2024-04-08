@@ -4,14 +4,15 @@ Determine which MDN pages should be altered to include data on Surfly support.
 
 ## How to modify tables
 
-Surfly support                                       | how to modify table
---------------                                       | -------------------
-Unknown                                              | {yes, partial, no} → unknown
-Yes (tested, no known issues)                        | no changes
-Partial implementation (tested, has bugs or caveats) | yes → partial + note
-Expected to work (not tested)                        | yes → partial + note "not tested"
-No, not yet implemented                              | {yes, partial, unknown} → no
-No, cannot implement due to a technical limitation   | {yes, partial, unknown} → no + note
+Surfly support                                       | limited  | how to modify table
+--------------                                       | -------  | -------------------
+Unknown                                              | (ignore) | {yes, partial, no} → unknown
+Supported                                            | `false`  | no changes
+Supported                                            | `true`   | yes → partial + note
+Expected                                             | `false`  | yes → partial + note "not tested"
+Expected                                             | `true`   | yes → partial + note "not tested"
+No, not yet implemented                              | (ignore) | {yes, partial, unknown} → no
+No, cannot implement due to a technical limitation   | (ignore) | {yes, partial, unknown} → no + note
 """
 
 import json

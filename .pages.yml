@@ -44,7 +44,7 @@ content:
                 Unknown
             - value: supported
               label: |
-                Yes
+                Supported
             - value: expected
               label: |
                 Expected to work, but nobody has checked yet
