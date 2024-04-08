@@ -85,8 +85,12 @@ content:
         label: Version removed (without the leading v)
         type: string
 
+      - name: internal_note
+        label: Internal note (not visible to clients)
+        type: text
+
       - name: body
-        label: Additional notes
+        label: Additional public notes
         type: code
         options:
           language: html
