@@ -47,7 +47,8 @@ def overlay(bcd_data, supported_browser_ids):
         support = Support[fm["support"].upper()]
         limitations = fm["limitations"]
         has_limitations = bool(limitations.strip())
-        note = str(fm).strip()
+        note = str(fm)
+        has_note = bool(note.strip())
 
         feature = bcd.get_feature(bcd_data, feature_id)
         native_browser_supports = feature['support']
@@ -79,7 +80,7 @@ def overlay(bcd_data, supported_browser_ids):
             for support_entry in surfly_support_entries:
                 overlay_one(support_entry, support, limitations)
 
-            if note:
+            if has_note:
                 add_note(surfly_support_entries[0], note)
 
             if has_limitations:
