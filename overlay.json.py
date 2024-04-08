@@ -45,8 +45,8 @@ def overlay(bcd_data, supported_browser_ids):
         fm = frontmatter.load(path)
         feature_id = fm["id"]
         support = Support[fm["support"].upper()]
-        icf_support_raw = fm.get("in_control_follower_support", "")
         limitations = fm.get("limitations", "")
+        icf_support_raw = fm.get("icf_support", "")
         icf_limitations = fm.get("icf_limitations", "")
         note = str(fm)
 
