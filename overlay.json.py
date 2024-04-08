@@ -27,7 +27,7 @@ from lib.support import Support
 
 root_path = pathlib.Path(__file__).parent
 surfly_path = root_path / "features"
-output_path = root_path / "scd"
+default_output_path = root_path / "scd"
 
 supported_browser_ids = [
     'chrome',
@@ -160,7 +160,7 @@ def overlay_browsers(upstream_browsers, supported_browser_ids):
         yield (f'surfly_{browser_id}', surfly_browser)
 
 
-def export(feature_data, browsers, feature_id=None):
+def export(output_path, feature_data, browsers, feature_id=None):
     for k, subfeature_data in feature_data.items():
         if k == '__compat':
             out = dict(
@@ -174,12 +174,17 @@ def export(feature_data, browsers, feature_id=None):
                 json.dump(out, f, separators=",:")
 
         elif isinstance(subfeature_data, dict):
-            export(subfeature_data, browsers, feature_id=k if feature_id is None else f'{feature_id}.{k}')
+            export(output_path, subfeature_data, browsers, feature_id=k if feature_id is None else f'{feature_id}.{k}')
 
 
+try:
+    output_path = pathlib.Path(sys.argv[1])
+except IndexError:
+    output_path = default_output_path
 output_path.mkdir(parents=True, exist_ok=True)
+
 spec = bcd.download()
 all_browsers = spec.pop('browsers')
 browsers = dict(overlay_browsers(all_browsers, supported_browser_ids))
 overlay(spec, supported_browser_ids)
-export(spec, browsers)
+export(output_path, spec, browsers)
