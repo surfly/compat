@@ -99,23 +99,39 @@ def overlay(bcd_data, supported_browser_ids):
                 elif icf_support == Support.TODO:
                     icf_notes.append('not yet supported.')
                 elif icf_support == Support.NEVER:
-                    icf_notes.append('cannot support.')
+                    icf_notes.append('cannot support due to a browser limitation.')
             if has_icf_limitations:
                 icf_notes.append(icf_limitations)
             if icf_notes:
-                icf_notes.insert(0, 'In-control followers:')
+                icf_notes.insert(0, "Controlling another user's tab:")
                 add_note(surfly_support_entries[0], ' '.join(icf_notes))
 
             if has_limitations:
                 add_note(surfly_support_entries[0], limitations)
 
-            # prepend notes to the last entry
+            support_level_note = None
             if support == Support.EXPECTED:
-                add_note(surfly_support_entries[0], 'Expected to work')
+                support_level_note = 'expected to work'
             elif support == Support.UNKNOWN:
-                add_note(surfly_support_entries[0], 'Unknown Surfly support')
+                support_level_note = 'unknown Surfly support'
             elif support == Support.NEVER:
-                add_note(surfly_support_entries[0], 'Surfly will not implement this feature due to technical limitations')
+                support_level_note = 'cannot support due to a browser limitation'
+            elif icf_notes and support == Support.SUPPORTED:
+                support_level_note = 'full Surfly support'
+
+            if support_level_note:
+                if icf_notes:
+                    support_level_note = f'Tab owner in control: {support_level_note}'
+                else:
+                    support_level_note = capitalize(support_level_note)
+                add_note(surfly_support_entries[0], support_level_note)
+
+
+def capitalize(s):
+    '''capitalize first word without lowercasing subsequent words'''
+    words = s.split(' ', maxsplit=1)
+    words[0] = words[0].title()
+    return ' '.join(words)
 
 
 def create_surfly_support_entries(support, has_limitations, icf_support, has_icf_limitations, native_support_entries):
