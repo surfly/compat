@@ -46,6 +46,7 @@ def overlay(bcd_data, supported_browser_ids):
         feature_id = fm["id"]
         support = Support[fm["support"].upper()]
         limitations = fm["limitations"]
+        has_limitations = bool(limitations.strip())
         note = str(fm).strip()
 
         feature = bcd.get_feature(bcd_data, feature_id)
@@ -60,10 +61,16 @@ def overlay(bcd_data, supported_browser_ids):
             # carry over original support data from native browser
             feature['support'][browser_id] = native_browser_supports[browser_id]
 
-            # copy support data for the browser running Surfly
-            surfly_support_entries = copy.deepcopy(native_browser_supports[browser_id])
+            # create "Surfly browser" column: start with a copy of the native browser
+            surfly_support_entries = (
+                dict(version_added=None)
+                if support == Support.UNKNOWN
+                else copy.deepcopy(native_browser_supports[browser_id])
+            )
+
             feature['support'][f'surfly_{browser_id}'] = surfly_support_entries
 
+            # always work with a list (simpler)
             if isinstance(surfly_support_entries, dict):
                 surfly_support_entries = [surfly_support_entries]
             if not surfly_support_entries:
@@ -78,25 +85,22 @@ def overlay(bcd_data, supported_browser_ids):
             elif support == Support.UNKNOWN:
                 add_note(surfly_support_entries[0], 'Unknown Surfly support')
 
+            if has_limitations:
+                add_note(support_entry, limitations)
+
             if note:
                 add_note(surfly_support_entries[0], note)
 
 
-
-def overlay_one(support_entry, support, limitations):
+def overlay_one(support_entry, support, has_limitations):
 
     if support in (Support.NEVER, Support.TODO):
         if not support_entry.get('version_removed'):
             support_entry['version_added'] = False
 
-    elif support == Support.UNKNOWN:
-        if not support_entry.get('version_removed'):
-            support_entry['version_added'] = None
-
-    elif limitations.strip():
+    elif has_limitations:
         if support_entry.get('version_added') and not support_entry.get('version_removed'):
             support_entry['partial_implementation'] = True
-            add_note(support_entry, limitations)
 
 
 def add_note(support_entry, new_note):
