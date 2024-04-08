@@ -74,7 +74,7 @@ def overlay(bcd_data, supported_browser_ids):
 
             # prepend notes to the last entry
             if support == Support.EXPECTED:
-                add_note(surfly_support_entries[0], 'Expected to work, but not tested under Surfly')
+                add_note(surfly_support_entries[0], 'Expected to work')
             elif support == Support.UNKNOWN:
                 add_note(surfly_support_entries[0], 'Unknown Surfly support')
 
