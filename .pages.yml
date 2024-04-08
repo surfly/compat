@@ -58,7 +58,42 @@ content:
       - name: limitations
         label: Limitations?
         description: |
-          Are there any known bugs or caveats preventing this feature from working and synchronizing to all participants?
+          When the tab owner is in control, are there any known bugs or caveats preventing this feature from working and synchronizing to all participants?
+          Note: if this field is not empty, this feature will be listed with partial support in compatibility tables.
+        type: code
+        options:
+          language: html
+
+      - name: in_control_follower_support
+        label: In-control follower support
+        description: |
+          Will this feature work for an in-control follower?
+        type: select
+        options:
+          values:
+            - value: ""
+              label: |
+                (same as general support)
+            - value: unknown
+              label: |
+                Unknown
+            - value: supported
+              label: |
+                Supported
+            - value: expected
+              label: |
+                Expected to work, but nobody has checked yet
+            - value: todo
+              label: |
+                No, not yet implemented
+            - value: never
+              label: |
+                No, cannot implement due to a technical limitation
+
+      - name: in_control_follower_limitations
+        label: In-control follower imitations?
+        description: |
+          When the tab owner is not in control, are there any known bugs or caveats preventing this feature from working and synchronizing to all participants?
           Note: if this field is not empty, this feature will be listed with partial support in compatibility tables.
         type: code
         options:
