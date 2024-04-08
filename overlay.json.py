@@ -18,7 +18,6 @@ default_output_path = root_path / "scd"
 supported_browser_ids = [
     "chrome",
     "chrome_android",
-    "edge",
     "firefox",
     "firefox_android",
     "safari",
@@ -184,6 +183,8 @@ def add_note(support_entry, new_note):
 def overlay_browsers(upstream_browsers, supported_browser_ids):
     for browser_id in supported_browser_ids:
         upstream_browser = upstream_browsers[browser_id]
+        if browser_id == "chrome":
+            upstream_browser["name"] = "Chrome/Edge"
         yield (browser_id, upstream_browser)
 
         surfly_browser = upstream_browser.copy()
