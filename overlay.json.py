@@ -14,6 +14,7 @@ from lib.support import Support
 root_path = pathlib.Path(__file__).parent
 surfly_path = root_path / "features"
 default_output_path = root_path / "scd"
+edit_url_prefix = "https://app.pagescms.org/qguv/surfly-compat-data/main/content/features/edit/"
 
 supported_browser_ids = [
     "chrome",
@@ -46,6 +47,8 @@ def overlay(bcd_root, supported_browser_ids):
                 f"feature {feature_id} was removed from browser-compat-data!"
             ) from e
 
+        feature["mdn_url"] = get_edit_url(path)
+
         native_browser_supports = feature["support"]
         feature["support"] = {}
 
@@ -74,6 +77,10 @@ def overlay(bcd_root, supported_browser_ids):
                 extra_note,
             )
             feature["support"][f"surfly_{browser_id}"] = surfly_support_entry
+
+
+def get_edit_url(path):
+    return edit_url_prefix + str(path.relative_to(root_path)).replace('/', '%2F')
 
 
 def capitalize(s):
