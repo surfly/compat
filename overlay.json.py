@@ -29,6 +29,7 @@ def overlay(bcd_data, supported_browser_ids):
     for path in surfly_path.glob("**/*.html"):
         fm = frontmatter.load(path)
         feature_id = fm["id"]
+        surfly_version_added = fm.get("version_added")
         support = Support[fm["support"].upper()]
         limitations = fm.get("limitations", "")
         icf_support_raw = fm.get("icf_support", "")
@@ -57,6 +58,7 @@ def overlay(bcd_data, supported_browser_ids):
             # create "Surfly browser" column: start with a copy of the native browser support data
             surfly_support_entry = create_surfly_support_entry(
                 latest_native_support_entry,
+                surfly_version_added,
                 support,
                 limitations,
                 icf_support,
@@ -83,6 +85,7 @@ def is_supported(support_entry):
 
 def create_surfly_support_entry(
     latest_native_support_entry,
+    surfly_version_added,
     support,
     limitations,
     icf_support,
@@ -107,6 +110,8 @@ def create_surfly_support_entry(
             or icf_support not in (Support.SUPPORTED, Support.EXPECTED)
         ):
             surfly_support_entry["partial_implementation"] = True
+
+        surfly_support_entry["version_added"] = surfly_version_added or True
 
     for n in create_support_notes(
         support, limitations, icf_support, icf_limitations, extra_note
