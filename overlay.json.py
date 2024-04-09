@@ -43,22 +43,27 @@ def overlay(bcd_data, supported_browser_ids):
         feature["support"] = {}
 
         for browser_id in supported_browser_ids:
-            if browser_id not in native_browser_supports:
+            try:
+                native_support_entries = native_browser_supports[browser_id]
+            except KeyError:
                 continue
 
             # carry over original support data from native browser
-            feature["support"][browser_id] = native_browser_supports[browser_id]
+            feature["support"][browser_id] = native_support_entries
+
+            # we only care about the latest support entry
+            latest_native_support_entry = get_latest_support_entry(native_support_entries)
 
             # create "Surfly browser" column: start with a copy of the native browser support data
-            surfly_support_entries = create_surfly_support_entries(
-                native_browser_supports[browser_id],
+            surfly_support_entry = create_surfly_support_entry(
+                latest_native_support_entry,
                 support,
                 limitations,
                 icf_support,
                 icf_limitations,
                 extra_note,
             )
-            feature["support"][f"surfly_{browser_id}"] = surfly_support_entries
+            feature["support"][f"surfly_{browser_id}"] = surfly_support_entry
 
 
 def capitalize(s):
@@ -68,56 +73,47 @@ def capitalize(s):
     return " ".join(words)
 
 
-def is_supported(support_entries):
-    if not support_entries:
-        return None
-
-    latest = (
-        support_entries[0] if isinstance(support_entries, list) else support_entries
-    )
-    return latest.get("version_added") and not latest.get("version_removed")
+def get_latest_support_entry(support_entries):
+    return support_entries[0] if isinstance(support_entries, list) and support_entries else support_entries
 
 
-def create_surfly_support_entries(
-    native_support_entries,
+def is_supported(support_entry):
+    return support_entry.get("version_added") and not support_entry.get("version_removed")
+
+
+def create_surfly_support_entry(
+    latest_native_support_entry,
     support,
     limitations,
     icf_support,
     icf_limitations,
     extra_note,
 ):
-    if not is_supported(native_support_entries):
+    if not is_supported(latest_native_support_entry):
         return dict(version_added=False)
 
     if support == Support.UNKNOWN:
-        surfly_support_entries = dict(version_added=None)
+        surfly_support_entry = dict(version_added=None)
 
     elif support in (Support.TODO, Support.NEVER):
-        surfly_support_entries = dict(version_added=False)
+        surfly_support_entry = dict(version_added=False)
 
     else:
-        surfly_support_entries = copy.deepcopy(native_support_entries)
+        surfly_support_entry = copy.deepcopy(latest_native_support_entry)
 
         if (
             limitations.strip()
             or icf_limitations.strip()
             or icf_support not in (Support.SUPPORTED, Support.EXPECTED)
         ):
-            xs = (
-                surfly_support_entries
-                if isinstance(surfly_support_entries, list)
-                else [surfly_support_entries]
-            )
-            for support_entry in xs:
-                if is_supported(support_entry):
-                    support_entry["partial_implementation"] = True
+            surfly_support_entry["partial_implementation"] = True
 
     for n in create_support_notes(
         support, limitations, icf_support, icf_limitations, extra_note
     ):
-        add_note(surfly_support_entries, n)
+        add_note(surfly_support_entry, n)
 
-    return surfly_support_entries
+    return surfly_support_entry
 
 
 def create_support_notes(
@@ -164,9 +160,6 @@ def create_support_notes(
 
 
 def add_note(support_entry, new_note):
-    if isinstance(support_entry, list):
-        support_entry = support_entry[0]
-
     try:
         notes = support_entry["notes"]
     except KeyError:
