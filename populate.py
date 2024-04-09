@@ -6,6 +6,7 @@ import sys
 import yaml
 
 from lib import bcd
+from lib import scd
 from lib.featuretree import FeatureTree
 from lib.support import Support
 
@@ -31,12 +32,26 @@ def create_feature_file(raw_path):
         print("---", file=f)
         yaml.dump(dict(id=feature_id, support=Support.UNKNOWN.name.lower()), f)
         print("---", file=f)
-        print(path.relative_to(features_path.parent), file=sys.stderr)
+        print(f"create {path.relative_to(features_path.parent)}", file=sys.stderr)
 
 
-bcd_data = bcd.download()
+def remove_outdated_feature_files(bcd_features_by_id, scd_paths_by_id):
+    bcd_feature_ids = set(bcd_features_by_id.keys())
+    scd_feature_ids = set(scd_paths_by_id.keys())
+    removed_feature_ids = scd_feature_ids - bcd_feature_ids
+    for fid in removed_feature_ids:
+        path = scd_paths_by_id[fid]
+        path.unlink()
+        print(f"delete {path.relative_to(features_path.parent)}", file=sys.stderr)
+
+
+bcd_root = bcd.download()
+bcd_features_by_id = dict(bcd.get_features(bcd_root))
+
+remove_outdated_feature_files(bcd_features_by_id, dict(scd.get_features()))
+
 feature_tree = FeatureTree()
-for feature_id, _ in bcd.get_features(bcd_data):
+for feature_id in bcd_features_by_id:
     feature_tree[feature_id] = Support.UNKNOWN
 
 create_top_dir(feature_tree, "api")

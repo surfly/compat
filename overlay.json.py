@@ -25,7 +25,7 @@ supported_browser_ids = [
 ]
 
 
-def overlay(bcd_data, supported_browser_ids):
+def overlay(bcd_root, supported_browser_ids):
     for path in surfly_path.glob("**/*.html"):
         fm = frontmatter.load(path)
         feature_id = fm["id"]
@@ -40,7 +40,7 @@ def overlay(bcd_data, supported_browser_ids):
         icf_support = Support[icf_support_raw.upper()] if icf_support_raw else support
 
         try:
-            feature = bcd.get_feature(bcd_data, feature_id)
+            feature = bcd.get_feature(bcd_root, feature_id)
         except KeyError as e:
             raise Exception(
                 f"feature {feature_id} was removed from browser-compat-data!"
@@ -232,8 +232,8 @@ except IndexError:
     output_path = default_output_path
 output_path.mkdir(parents=True, exist_ok=True)
 
-spec = bcd.download()
-all_browsers = spec.pop("browsers")
+bcd_root = bcd.download()
+all_browsers = bcd_root.pop("browsers")
 browsers = dict(overlay_browsers(all_browsers, supported_browser_ids))
-overlay(spec, supported_browser_ids)
-export(output_path, spec, browsers)
+overlay(bcd_root, supported_browser_ids)
+export(output_path, bcd_root, browsers)
