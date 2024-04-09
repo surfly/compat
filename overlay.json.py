@@ -53,7 +53,9 @@ def overlay(bcd_data, supported_browser_ids):
             feature["support"][browser_id] = native_support_entries
 
             # we only care about the latest support entry
-            latest_native_support_entry = get_latest_support_entry(native_support_entries)
+            latest_native_support_entry = get_latest_support_entry(
+                native_support_entries
+            )
 
             # create "Surfly browser" column: start with a copy of the native browser support data
             surfly_support_entry = create_surfly_support_entry(
@@ -76,11 +78,17 @@ def capitalize(s):
 
 
 def get_latest_support_entry(support_entries):
-    return support_entries[0] if isinstance(support_entries, list) and support_entries else support_entries
+    return (
+        support_entries[0]
+        if isinstance(support_entries, list) and support_entries
+        else support_entries
+    )
 
 
 def is_supported(support_entry):
-    return support_entry.get("version_added") and not support_entry.get("version_removed")
+    return support_entry.get("version_added") and not support_entry.get(
+        "version_removed"
+    )
 
 
 def create_surfly_support_entry(

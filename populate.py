@@ -15,7 +15,7 @@ features_path = root_path / "features"
 
 def create_top_dir(feature_tree, name):
     subfeature_tree = feature_tree.get_node(name)
-    for raw_path in subfeature_tree.dir(f'{name}.'):
+    for raw_path in subfeature_tree.dir(f"{name}."):
         create_feature_file(raw_path)
 
 
