@@ -115,10 +115,6 @@ content:
         label: Version added (without the leading v)
         type: string
 
-      - name: version_removed
-        label: Version removed (without the leading v)
-        type: string
-
       - name: internal_note
         label: Internal note (not visible to clients)
         type: text
