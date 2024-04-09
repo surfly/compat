@@ -10,6 +10,9 @@ window.fetch = function(url, ...rest) {
   return window.__native_fetch.call(this, url, ...rest);
 };
 
+// keep session from timing out
+window.setInterval(() => window.__native_fetch('https://session.surfly.online/healthcheck/'), 100e3);
+
 // respond to messages sent from the controlling frame
 window.addEventListener('message', event => {
 
