@@ -39,7 +39,13 @@ def overlay(bcd_data, supported_browser_ids):
         # handle empty support
         icf_support = Support[icf_support_raw.upper()] if icf_support_raw else support
 
-        feature = bcd.get_feature(bcd_data, feature_id)
+        try:
+            feature = bcd.get_feature(bcd_data, feature_id)
+        except KeyError as e:
+            raise Exception(
+                f"feature {feature_id} was removed from browser-compat-data!"
+            ) from e
+
         native_browser_supports = feature["support"]
         feature["support"] = {}
 
