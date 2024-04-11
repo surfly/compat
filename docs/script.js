@@ -34,7 +34,7 @@ async function create_session() {
     body: JSON.stringify({
       url,
       headless: true,
-      script_embedded: `https://raw.githubusercontent.com/qguv/surfly-compat-data/main/script-embedded.js`,
+      script_embedded: `https://raw.githubusercontent.com/qguv/surfly-compat-data/main/docs/script-embedded.js`,
     }),
   };
 
