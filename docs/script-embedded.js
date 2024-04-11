@@ -1,5 +1,5 @@
 const bcd_url_prefix = 'https://bcd.developer.mozilla.org/bcd/api/v0/current/';
-const scd_url_prefix = 'https://raw.githubusercontent.com/qguv/surfly-compat-data/data/scd/';
+const scd_url_prefix = 'https://raw.githubusercontent.com/surfly/compat/data/scd/';
 
 // intercept requests to MDN browser-compat-data
 window.__native_fetch = window.fetch;
