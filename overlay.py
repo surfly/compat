@@ -4,7 +4,9 @@
 import copy
 import json
 import pathlib
+import subprocess
 import sys
+import tempfile
 
 import frontmatter
 
@@ -13,8 +15,11 @@ from lib.support import Support
 
 root_path = pathlib.Path(__file__).parent
 surfly_path = root_path / "features"
-default_output_path = root_path / "scd"
-edit_url_prefix = "https://app.pagescms.org/qguv/surfly-compat-data/main/content/features/edit/"
+data_branch = "data"
+ANSI_CLEAR_LINE = "\x1b[2K\r"
+edit_url_prefix = (
+    "https://app.pagescms.org/qguv/surfly-compat-data/main/content/features/edit/"
+)
 
 supported_browser_ids = [
     "chrome",
@@ -80,7 +85,7 @@ def overlay(bcd_root, supported_browser_ids):
 
 
 def get_edit_url(path):
-    return edit_url_prefix + str(path.relative_to(root_path)).replace('/', '%2F')
+    return edit_url_prefix + str(path.relative_to(root_path)).replace("/", "%2F")
 
 
 def capitalize(s):
@@ -220,7 +225,7 @@ def export(output_path, feature_data, browsers, feature_id=None):
                 data=feature_data,
             )
             feature_path = output_path / f"{feature_id}.json"
-            print(feature_path.name, file=sys.stderr)
+            print(f"{ANSI_CLEAR_LINE}{feature_path.name}", end="\r", file=sys.stderr)
             with (output_path / f"{feature_id}.json").open("w") as f:
                 json.dump(out, f, separators=",:")
 
@@ -233,14 +238,42 @@ def export(output_path, feature_data, browsers, feature_id=None):
             )
 
 
-try:
-    output_path = pathlib.Path(sys.argv[1])
-except IndexError:
-    output_path = default_output_path
-output_path.mkdir(parents=True, exist_ok=True)
+def update(data_worktree_path):
+    output_path = pathlib.Path(data_worktree_path) / "scd"
+    output_path.mkdir()
 
-bcd_root = bcd.download()
-all_browsers = bcd_root.pop("browsers")
-browsers = dict(overlay_browsers(all_browsers, supported_browser_ids))
-overlay(bcd_root, supported_browser_ids)
-export(output_path, bcd_root, browsers)
+    print("Downloading latest bcd data...", file=sys.stderr)
+    bcd_root = bcd.download()
+
+    print("Creating overlay data...", file=sys.stderr)
+    all_browsers = bcd_root.pop("browsers")
+    browsers = dict(overlay_browsers(all_browsers, supported_browser_ids))
+    overlay(bcd_root, supported_browser_ids)
+    export(output_path, bcd_root, browsers)
+    print(ANSI_CLEAR_LINE, file=sys.stderr)
+
+    print("Committing new data to `data` branch... ", end="", file=sys.stderr)
+    subprocess.check_call(["git", "add", "scd"], cwd=data_worktree_path)
+    subprocess.check_call(
+        ["git", "commit", "-m", "regenerate overlay data"],
+        cwd=data_worktree_path,
+    )
+
+    print("\nDone! You can now push the `data` branch.", file=sys.stderr)
+
+
+with tempfile.TemporaryDirectory() as data_worktree_path:
+    subprocess.check_call(
+        ["git", "worktree", "add", "--no-checkout", data_worktree_path, data_branch],
+        cwd=root_path,
+    )
+    try:
+        update(data_worktree_path)
+    except KeyboardInterrupt:
+        print("\n", file=sys.stderr)
+        pass
+    finally:
+        subprocess.check_call(
+            ["git", "worktree", "remove", "--force", str(data_worktree_path)],
+            cwd=root_path,
+        )
