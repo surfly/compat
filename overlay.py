@@ -16,6 +16,7 @@ from lib.support import Support
 root_path = pathlib.Path(__file__).parent
 surfly_path = root_path / "features"
 data_branch = "data"
+output_dir_name = "scd"
 ANSI_CLEAR_LINE = "\x1b[2K\r"
 edit_url_prefix = (
     "https://app.pagescms.org/qguv/surfly-compat-data/main/content/features/edit/"
@@ -238,8 +239,13 @@ def export(output_path, feature_data, browsers, feature_id=None):
             )
 
 
+def git_something_staged(worktree_path):
+    res = subprocess.run(["git", "diff", "--cached", "--quiet"], cwd=worktree_path)
+    return res.returncode == 1
+
+
 def update(data_worktree_path):
-    output_path = pathlib.Path(data_worktree_path) / "scd"
+    output_path = pathlib.Path(data_worktree_path) / output_dir_name
     output_path.mkdir()
 
     print("Downloading latest bcd data...", file=sys.stderr)
@@ -250,16 +256,19 @@ def update(data_worktree_path):
     browsers = dict(overlay_browsers(all_browsers, supported_browser_ids))
     overlay(bcd_root, supported_browser_ids)
     export(output_path, bcd_root, browsers)
-    print(ANSI_CLEAR_LINE, file=sys.stderr)
+    print(f"{ANSI_CLEAR_LINE}Done!", file=sys.stderr)
 
-    print("Committing new data to `data` branch... ", end="", file=sys.stderr)
-    subprocess.check_call(["git", "add", "scd"], cwd=data_worktree_path)
-    subprocess.check_call(
-        ["git", "commit", "-m", "regenerate overlay data"],
-        cwd=data_worktree_path,
-    )
+    subprocess.check_call(["git", "add", output_dir_name], cwd=data_worktree_path)
+    if git_something_staged(data_worktree_path):
+        print("Committing new data to `data` branch... ", end="", file=sys.stderr)
+        subprocess.check_call(
+            ["git", "commit", "-m", "regenerate overlay data"],
+            cwd=data_worktree_path,
+        )
 
-    print("\nDone! You can now push the `data` branch.", file=sys.stderr)
+        print("\nDone! You can now push the `data` branch.", file=sys.stderr)
+    else:
+        print("\nDone! Data was already up to date.", file=sys.stderr)
 
 
 with tempfile.TemporaryDirectory() as data_worktree_path:
