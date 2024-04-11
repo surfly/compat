@@ -258,9 +258,11 @@ def update(data_worktree_path):
     export(output_path, bcd_root, browsers)
     print(f"{ANSI_CLEAR_LINE}Done!", file=sys.stderr)
 
+    print("Checking for changes...", file=sys.stderr)
     subprocess.check_call(["git", "add", output_dir_name], cwd=data_worktree_path)
+
     if git_something_staged(data_worktree_path):
-        print("Committing new data to `data` branch... ", end="", file=sys.stderr)
+        print("Committing changes to the `data` branch... ", end="", file=sys.stderr)
         subprocess.check_call(
             ["git", "commit", "-m", "regenerate overlay data"],
             cwd=data_worktree_path,
@@ -268,14 +270,18 @@ def update(data_worktree_path):
 
         print("\nDone! You can now push the `data` branch.", file=sys.stderr)
     else:
-        print("\nDone! Data was already up to date.", file=sys.stderr)
+        print("No changes found; data was already up-to-date.", file=sys.stderr)
 
 
 with tempfile.TemporaryDirectory() as data_worktree_path:
-    subprocess.check_call(
-        ["git", "worktree", "add", "--no-checkout", data_worktree_path, data_branch],
-        cwd=root_path,
-    )
+    try:
+        subprocess.check_call(
+            ["git", "worktree", "add", "--no-checkout", data_worktree_path, data_branch],
+            cwd=root_path,
+        )
+    except subprocess.CalledProcessError:
+        sys.exit(1)
+
     try:
         update(data_worktree_path)
     except KeyboardInterrupt:
