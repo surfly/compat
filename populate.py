@@ -13,6 +13,8 @@ from lib.support import Support
 root_path = pathlib.Path(__file__).resolve().parent
 features_path = root_path / "features"
 
+did_something = False
+
 
 def create_top_dir(feature_tree, name):
     subfeature_tree = feature_tree.get_node(name)
@@ -21,6 +23,7 @@ def create_top_dir(feature_tree, name):
 
 
 def create_feature_file(raw_path):
+    global did_something
     _, _, feature_id = raw_path.rpartition("/")
 
     path = features_path / f"{raw_path}.html"
@@ -33,9 +36,11 @@ def create_feature_file(raw_path):
         yaml.dump(dict(id=feature_id, support=Support.UNKNOWN.name.lower()), f)
         print("---", file=f)
         print(f"create {path.relative_to(features_path.parent)}", file=sys.stderr)
+        did_something = True
 
 
 def remove_outdated_feature_files(bcd_features_by_id, scd_paths_by_id):
+    global did_something
     bcd_feature_ids = set(bcd_features_by_id.keys())
     scd_feature_ids = set(scd_paths_by_id.keys())
     removed_feature_ids = scd_feature_ids - bcd_feature_ids
@@ -43,6 +48,7 @@ def remove_outdated_feature_files(bcd_features_by_id, scd_paths_by_id):
         path = scd_paths_by_id[fid]
         path.unlink()
         print(f"delete {path.relative_to(features_path.parent)}", file=sys.stderr)
+        did_something = True
 
 
 bcd_root = bcd.download()
@@ -60,3 +66,6 @@ create_top_dir(feature_tree, "html.global_attributes")
 create_top_dir(feature_tree, "http.data-url")
 create_top_dir(feature_tree, "http.headers")
 create_top_dir(feature_tree, "javascript")
+
+if not did_something:
+    print("data was already up-to-date", file=sys.stderr)
