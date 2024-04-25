@@ -1,4 +1,14 @@
 ---
 id: api.Window.opener
-support: unknown
+support: supported
+limitations: The opener can be omitted by specifying rel=noopener on a link, or
+  passing noopener in the windowFeatures parameter but this is not implemented
+  at the moment.
+icf_support: expected
+tests:
+  - /tests/cobro_main/window_open/test_window_opener.html
+  - /tests/cobro_main/window_open/test_window_opener_navigation.html
+  - /tests/cobro_main/window_open/window_opener_navigation2.html
+  - /tests/cobro_main/window_open/test_window_open_foreign_ctx/opener_open.html
+  - /tests/cobro_selenium/static/window_open.html
 ---
